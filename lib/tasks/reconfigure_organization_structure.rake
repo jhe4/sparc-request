@@ -18,20 +18,20 @@ namespace :data do
     
     # Grab all org_id foreign key tables for 73,74,75,76,50,51,52, and 53 and associate them with Organization 72 "MUHA LAB"
     soon_to_be_deleted_cores = [73,74,75,76,50,51,52,53]
-    updated_tables_for_cores = TABLES_WITH_ORG_FOREIGN_KEY.map do |table|
+    TABLES_WITH_ORG_FOREIGN_KEY.map do |table|
       if !table.where(organization_id: soon_to_be_deleted_cores).empty?
         puts "Updated table for cores:"
         puts table
-        table.where(organization_id: soon_to_be_deleted_cores).each { |org| org.update_attribute(:organization_id, 72) }
+        table.where(organization_id: soon_to_be_deleted_cores).each { |row| row.update_attribute(:organization_id, 72) }
       end
     end
 
     # Grab foreign key tables for 49 and place them under 72
-    updated_tables_for_49 = TABLES_WITH_ORG_FOREIGN_KEY.map do |table|
+    TABLES_WITH_ORG_FOREIGN_KEY.map do |table|
       if !table.where(organization_id: 49).empty?
         puts "Updated table for org 49:"
         puts table
-        table.where(organization_id: 49).each { |org| org.update_attribute(:organization_id, 72) }
+        table.where(organization_id: 49).each { |row| row.update_attribute(:organization_id, 72) }
       end
     end
 
@@ -51,5 +51,8 @@ namespace :data do
     # Delete core organizations 73,74,75,76,50,51,52,53 and program organization 49
     organizations_to_be_destroyed = [73,74,75,76,50,51,52,53,49]
     Organization.where(id: organizations_to_be_destroyed).each { |org| org.destroy }
+
+    # ssr_66 = Service.where(organization_id: 66).map(&:line_items).flatten.map(&:sub_service_request_id)
+    # ssr_67 = Service.where(organization_id: 67).map(&:line_items).flatten.map(&:sub_service_request_id)
   end
 end
