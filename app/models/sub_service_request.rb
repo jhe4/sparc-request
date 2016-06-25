@@ -32,6 +32,7 @@ class SubServiceRequest < ActiveRecord::Base
   has_many :past_statuses, :dependent => :destroy
   has_many :line_items, :dependent => :destroy
   has_many :line_items_visits, through: :line_items
+  has_many :services, through: :line_items
   has_and_belongs_to_many :documents
   has_many :notes, as: :notable, dependent: :destroy
   has_many :approvals, :dependent => :destroy
