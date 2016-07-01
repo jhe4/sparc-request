@@ -64,6 +64,10 @@ namespace :data do
         ssr.update_attribute(:organization_id, process_ssrs_67)
 
         # Do we need to update CWF data when we move LineItems?
+        # CWF protocols belong to a SubServiceRequest
+        # CWF line items belong to a CWF Protocol (which is really just a SubServiceRequest)
+        # Since CWF protocols belong to a SubServiceRequest I'm not sure how we would handle this.  
+        # We can't just make a new SubServiceRequest since the CWF protocol relies on previous SubServiceRequest
         ssr.line_items.joins(:service).where(services: { organization_id: 66 }).each do |li|
           li.update_attribute(:sub_service_request_id, new_ssr.id)
 
@@ -74,11 +78,11 @@ namespace :data do
         # has_* relationships to copy over to the new SubServiceRequest
         # Only thing that changes on the duplicates is the sub_service_request_id...
         # Remarks:
-        #   * Is CoverLetter being used anymore?
-        #   * What do we do about Payments?
-        #   * What to do about Reports? Can we update them?
-        #   * Not sure what a ResponseSet is, but it needs to be dealt with.
-        #   * Same for Subsidies
+        #   * Is CoverLetter being used anymore?  NO
+        #   * What do we do about Payments? Not used any more
+        #   * What to do about Reports? Can we update them? I would say we need to update them
+        #   * Not sure what a ResponseSet is, but it needs to be dealt with.  They can be updated if they have SubServiceRequest attached
+        #   * Same for Subsidies.  They can be updated as well
 
         blindly_copy_over = [:approvals, :notifications, :past_statuses]
 
