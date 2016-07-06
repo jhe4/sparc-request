@@ -63,11 +63,6 @@ namespace :data do
         # use original for 67's services
         ssr.update_attribute(:organization_id, process_ssrs_67)
 
-        # Do we need to update CWF data when we move LineItems?
-        # CWF protocols belong to a SubServiceRequest
-        # CWF line items belong to a CWF Protocol (which is really just a SubServiceRequest)
-        # Since CWF protocols belong to a SubServiceRequest I'm not sure how we would handle this.  
-        # We can't just make a new SubServiceRequest since the CWF protocol relies on previous SubServiceRequest
         ssr.line_items.joins(:service).where(services: { organization_id: 66 }).each do |li|
           li.update_attribute(:sub_service_request_id, new_ssr.id)
 
