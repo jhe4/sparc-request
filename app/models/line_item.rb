@@ -23,7 +23,8 @@ class LineItem < ActiveRecord::Base
   include RemotelyNotifiable
 
   audited
-
+  attr_accessible :audit_comment
+  
   belongs_to :service_request
   belongs_to :service, -> { includes(:pricing_maps, :organization) }, :counter_cache => true
   belongs_to :sub_service_request

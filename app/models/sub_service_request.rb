@@ -23,6 +23,7 @@ class SubServiceRequest < ActiveRecord::Base
   include RemotelyNotifiable
 
   audited
+  attr_accessible :audit_comment
 
   after_save :update_past_status, :update_org_tree
 

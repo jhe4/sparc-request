@@ -20,6 +20,7 @@
 
 class PastStatus < ActiveRecord::Base
   audited
+  attr_accessible :audit_comment
 
   belongs_to :sub_service_request
 

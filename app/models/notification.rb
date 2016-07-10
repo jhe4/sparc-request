@@ -20,6 +20,7 @@
 
 class Notification < ActiveRecord::Base
   audited
+  attr_accessible :audit_comment
 
   belongs_to :originator, class_name: "Identity"
   belongs_to :other_user, class_name: "Identity"
