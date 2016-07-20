@@ -61,11 +61,12 @@ namespace :data do
         puts "#{split_ssrs_so_far}/#{split_ssrs_count}"
         # new SSR for 66's serivces
         new_ssr = ssr.dup
-        new_ssr.update!(organization_id: process_ssrs_66, audit_comment: AUDIT_COMMENT)
+        new_ssr.update!(organization_id: process_ssrs_66, audit_comment: AUDIT_COMMENT, ssr_id: nil)
 
         # use original for 67's services
         ssr.update!(organization_id: process_ssrs_67, audit_comment: AUDIT_COMMENT)
 
+        # move line items
         ssr.line_items.joins(:service).where(services: { organization_id: 66 }).each do |li|
           li.update!(sub_service_request_id: new_ssr.id, audit_comment: AUDIT_COMMENT)
         end
