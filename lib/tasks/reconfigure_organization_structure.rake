@@ -46,44 +46,56 @@ namespace :data do
 
       # TEASE APART SubServiceRequests
       # Sub Service Requests that are shared by the line items associated with org 66 and org 67
-      split_ssrs = SubServiceRequest.joins(:services).where(services: { organization_id: 66 }) &
+      ssrs_to_split = SubServiceRequest.joins(:services).where(services: { organization_id: 66 }) &
          SubServiceRequest.joins(:services).where(services: { organization_id: 67 })
       # When splitting SSR's, the SSR containing 66's services will have this organization_id:
       process_ssrs_66 = Organization.find(66).process_ssrs_parent.id
       # When splitting SSR's, the SSR containing 67's services will have this organization_id:
       process_ssrs_67 = Organization.find(67).process_ssrs_parent.id
 
-      split_ssrs_count = split_ssrs.count
-      split_ssrs_so_far = 0
+      ssrs_to_split_count = ssrs_to_split.count
+      ssrs_to_split_so_far = 0
       puts "Splitting SSRs"
-      split_ssrs.each do |ssr|
-        split_ssrs_so_far += 1
-        puts "#{split_ssrs_so_far}/#{split_ssrs_count}"
-        # new SSR for 66's serivces
-        new_ssr = ssr.dup
-        new_ssr.update!(organization_id: process_ssrs_66, audit_comment: AUDIT_COMMENT, ssr_id: nil)
+      ssrs_to_split.each do |ssr|
+        ssrs_to_split_so_far += 1
+        puts "#{ssrs_to_split_so_far}/#{ssrs_to_split_count}"
 
-        # use original for 67's services
-        ssr.update!(organization_id: process_ssrs_67, audit_comment: AUDIT_COMMENT)
+        ssr_66 = ssr.service_request.sub_service_requests.where(organization_id: process_ssrs_66).first
+        ssr_67 = ssr.service_request.sub_service_requests.where(organization_id: process_ssrs_67).first
 
-        # move line items
-        ssr.line_items.joins(:service).where(services: { organization_id: 66 }).each do |li|
-          li.update!(sub_service_request_id: new_ssr.id, audit_comment: AUDIT_COMMENT)
+        # determine who will have 66's services and who'll have 67's
+        if ssr_66.nil? && ssr_67.nil?
+          ssr_66 = mimic_ssr(ssr)
+          ssr_67 = ssr
+        elsif ssr_66.nil?
+          ssr_66 = ssr
+        elsif ssr_67.nil?
+          ssr_67 = ssr
         end
 
-        # copy over has_* relationships to new SubServiceRequest
-        blindly_copy_over = [:approvals, :notifications, :past_statuses]
+        # make sure organization_id's are correct
+        ssr_66.update!(organization_id: process_ssrs_66, audit_comment: AUDIT_COMMENT)
+        ssr_67.update!(organization_id: process_ssrs_67, audit_comment: AUDIT_COMMENT)
 
-        blindly_copy_over.each do |child_name|
-          dup_children_objs(ssr, new_ssr, child_name)
+        # make sure LineItems are in the proper place
+        ssr_mapping = { 66 => ssr_66.id, 67 => ssr_67.id }
+        LineItem.where(sub_service_request_id: [ssr_66.id, ssr_67.id, ssr.id]).each do |li|
+          li.update!(sub_service_request_id: ssr_mapping[li.service.organization_id], audit_comment: AUDIT_COMMENT)
         end
-        # copy over Documents
-        ssr.documents.each do |document|
-          DocumentsSubServiceRequest.create!(sub_service_request_id: new_ssr.id, document_id: document.id, audit_comment: AUDIT_COMMENT)
+
+        # destroy ssr if we emptied it
+        sr = ssr.service_request
+        if ssr.reload.line_items.empty?
+          dup_relationships(ssr, ssr_66)
+          dup_relationships(ssr, ssr_67)
+
+          ssr.destroy()
+          ssr.audits.last.update(comment: AUDIT_COMMENT)
         end
-        # update next_ssr_id on ServiceRequest
-        unless new_ssr.service_request_id.nil? || new_ssr.service_request.protocol_id.nil?
-          new_ssr.service_request.try(:ensure_ssr_ids) # some SSR's have no SR
+
+        # update next_ssr_id on ServiceRequest and set ssr_id's on new SSR's
+        unless sr.nil? || sr.protocol_id.nil?
+          sr.try(:ensure_ssr_ids) # some SSR's have no SR
         end
       end
 
@@ -99,10 +111,38 @@ namespace :data do
     end
   end
 
-  def dup_children_objs(orig_ssr, new_ssr, child_name)
-    orig_ssr.send(child_name).each do |child|
+  # duplicate SSR, and copy over some relationships from the original to the
+  # duplicate
+  def mimic_ssr(orig_ssr)
+    mimic = orig_ssr.dup
+
+    # take care of ssr_id later with service_request.ensure_ssr_ids
+    mimic.update!(audit_comment: AUDIT_COMMENT, ssr_id: nil)
+
+    dup_relationships(orig_ssr, mimic)
+
+    mimic
+  end
+
+  # copy over documents, approvals, notifications, past statuses
+  def dup_relationships(from_ssr, to_ssr)
+    # copy over has_* relationships to other SubServiceRequest
+    blindly_copy_over = [:approvals, :notifications, :past_statuses]
+    blindly_copy_over.each do |child_name|
+      dup_children_objs(from_ssr, to_ssr, child_name)
+    end
+
+    # copy over Documents
+    from_ssr.documents.each do |document|
+      DocumentsSubServiceRequest.create!(sub_service_request_id: to_ssr.id, document_id: document.id, audit_comment: AUDIT_COMMENT)
+    end
+  end
+
+  # copy over has_many relationship
+  def dup_children_objs(from_ssr, to_ssr, child_name)
+    from_ssr.send(child_name).each do |child|
       child_dup = child.dup
-      child_dup.update!(sub_service_request_id: new_ssr.id, audit_comment: AUDIT_COMMENT)
+      child_dup.update!(sub_service_request_id: to_ssr.id, audit_comment: AUDIT_COMMENT)
     end
   end
 end
