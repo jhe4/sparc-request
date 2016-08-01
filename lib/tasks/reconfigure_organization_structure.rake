@@ -46,12 +46,11 @@ namespace :data do
 
       # TEASE APART SubServiceRequests
       # Sub Service Requests that are shared by the line items associated with org 66 and org 67
-      ssrs_to_split = SubServiceRequest.joins(:services).where(services: { organization_id: 66 }) &
-         SubServiceRequest.joins(:services).where(services: { organization_id: 67 })
+      ssrs_to_split = SubServiceRequest.where(organization_id: 65)
       # When splitting SSR's, the SSR containing 66's services will have this organization_id:
-      process_ssrs_66 = Organization.find(66).process_ssrs_parent.id
+      technical_ssr_org_id = Organization.find(55).id
       # When splitting SSR's, the SSR containing 67's services will have this organization_id:
-      process_ssrs_67 = Organization.find(67).process_ssrs_parent.id
+      professional_ssr_org_id = Organization.find(56).id
 
       ssrs_to_split_count = ssrs_to_split.count
       ssrs_to_split_so_far = 0
@@ -60,34 +59,75 @@ namespace :data do
         ssrs_to_split_so_far += 1
         puts "#{ssrs_to_split_so_far}/#{ssrs_to_split_count}"
 
-        ssr_66 = ssr.service_request.sub_service_requests.where(organization_id: process_ssrs_66).first
-        ssr_67 = ssr.service_request.sub_service_requests.where(organization_id: process_ssrs_67).first
+        # Find existing SSR's with org_id of 55 and 56
+        technical_ssr = ssr.service_request.sub_service_requests.where(organization_id: 55).first
+        professional_ssr = ssr.service_request.sub_service_requests.where(organization_id: 56).first
 
-        # determine who will have 66's services and who'll have 67's
-        if ssr_66.nil? && ssr_67.nil?
+        # determine if SSR has both technical and professional services
+        includes_techincal_services = ssr.services.map(&:organization_id).include?(66)
+        includes_professional_services = ssr.services.map(&:organization_id).include?(67)
+
+        # create duplicate SSR
+        if includes_techincal_services && includes_professional_services
           ssr_66 = mimic_ssr(ssr)
-          ssr_67 = ssr
-        elsif ssr_66.nil?
-          ssr_66 = ssr
-        elsif ssr_67.nil?
-          ssr_67 = ssr
+          ssr_67 = mimic_ssr(ssr)
+        elsif includes_techincal_services
+          ssr_66 = mimic_ssr(ssr)
+        elsif includes_professional_services
+          ssr_67 = mimic_ssr(ssr)
         end
 
-        # make sure organization_id's are correct
-        ssr_66.update!(organization_id: process_ssrs_66, audit_comment: AUDIT_COMMENT)
-        ssr_67.update!(organization_id: process_ssrs_67, audit_comment: AUDIT_COMMENT)
+        # move SSR's technical and professional services under appropriate new duplicated SSR
+        if ssr_66 && ssr_67
+          ssr_66.update!(organization_id: technical_ssr_org_id, audit_comment: AUDIT_COMMENT)
+          ssr_67.update!(organization_id: professional_ssr_org_id, audit_comment: AUDIT_COMMENT)
+          
+          line_items_associated_with_tech = ssr.line_items.select{|li| li.service.organization_id == 66}
+          line_items_associated_with_prof = ssr.line_items.select{|li| li.service.organization_id == 67}
 
-        # make sure LineItems are in the proper place
-        ssr_mapping = { 66 => ssr_66.id, 67 => ssr_67.id }
-        LineItem.where(sub_service_request_id: [ssr_66.id, ssr_67.id, ssr.id]).each do |li|
-          li.update!(sub_service_request_id: ssr_mapping[li.service.organization_id], audit_comment: AUDIT_COMMENT)
+          line_items_associated_with_tech.each do |li|
+            li.update!(sub_service_request_id: ssr_66.id, audit_comment: AUDIT_COMMENT)
+          end
+
+          line_items_associated_with_prof.each do |li|
+            li.update!(sub_service_request_id: ssr_67.id, audit_comment: AUDIT_COMMENT)
+          end
+        elsif ssr_66
+          ssr_66.update!(organization_id: technical_ssr_org_id, audit_comment: AUDIT_COMMENT)
+
+          line_items_associated_with_tech = ssr.line_items.select{|li| li.service.organization_id == 66}
+          line_items_associated_with_tech.each do |li|
+            li.update!(sub_service_request_id: ssr_66.id, audit_comment: AUDIT_COMMENT)
+          end
+        elsif ssr_67
+          ssr_67.update!(organization_id: professional_ssr_org_id, audit_comment: AUDIT_COMMENT)
+
+          line_items_associated_with_prof = ssr.line_items.select{|li| li.service.organization_id == 67}
+          line_items_associated_with_prof.each do |li|
+            li.update!(sub_service_request_id: ssr_67.id, audit_comment: AUDIT_COMMENT)
+          end
         end
+
+        # technical_services = Service.where(organization_id: 66)
+        # technical_services.each do |service|
+        #   service.update!(organization_id: 55)
+        # end
+        # professional_services = Service.where(organization_id: 67)
+        # professional_services.each do |service|
+        #   service.update!(organization_id: 56)
+        # end
 
         # destroy ssr if we emptied it
         sr = ssr.service_request
         if ssr.reload.line_items.empty?
-          dup_relationships(ssr, ssr_66)
-          dup_relationships(ssr, ssr_67)
+          # if ssr_66 && ssr_67
+          #   dup_relationships(ssr, ssr_66)
+          #   dup_relationships(ssr, ssr_67)
+          # elsif ssr_66
+          #   dup_relationships(ssr, ssr_66)
+          # elsif ssr_67
+          #   dup_relationships(ssr, ssr_67)
+          # end
 
           ssr.destroy()
           ssr.audits.last.update(comment: AUDIT_COMMENT)
@@ -115,7 +155,6 @@ namespace :data do
   # duplicate
   def mimic_ssr(orig_ssr)
     mimic = orig_ssr.dup
-
     # take care of ssr_id later with service_request.ensure_ssr_ids
     mimic.update!(audit_comment: AUDIT_COMMENT, ssr_id: nil)
 

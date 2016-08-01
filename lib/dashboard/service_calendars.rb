@@ -151,7 +151,8 @@ module Dashboard
           grouped_livs[value[:name]] = livs unless livs.empty?
         end
       else
-        service_request.service_list(false).each do |_, value| # get only per patient/per visit services and group them
+        service_request.sub_service_requests.each do |_, value|
+        # service_request.service_list(false).each do |_, value| # get only per patient/per visit services and group them
           next unless sub_service_request.nil? || sub_service_request.organization.name == value[:process_ssr_organization_name]
           livs = Array.new
           arm.line_items_visits.each do |line_items_visit|
