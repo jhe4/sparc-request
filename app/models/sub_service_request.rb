@@ -502,6 +502,54 @@ class SubServiceRequest < ActiveRecord::Base
   end
   ### end audit reporting methods ###
 
+  def service_list is_one_time_fee=nil
+    items = []
+    case is_one_time_fee
+    when nil
+      items = line_items
+    when true
+      items = one_time_fee_line_items
+    when false
+      items = per_patient_per_visit_line_items
+    end
+
+    groupings = {}
+    items.each do |line_item|
+      service = line_item.service
+      name = []
+      acks = []
+      last_parent = nil
+      last_parent_name = nil
+      found_parent = false
+      service.parents.reverse.each do |parent|
+        next if !parent.process_ssrs? && !found_parent
+        found_parent = true
+        last_parent = last_parent || parent.id
+        last_parent_name = last_parent_name || parent.name
+        name << parent.abbreviation
+        acks << parent.ack_language unless parent.ack_language.blank?
+      end
+      if found_parent == false
+        service.parents.reverse.each do |parent|
+          name << parent.abbreviation
+          acks << parent.ack_language unless parent.ack_language.blank?
+        end
+        last_parent = service.organization.id
+        last_parent_name = service.organization.name
+      end
+
+      if groupings.include? last_parent
+        g = groupings[last_parent]
+        g[:services] << service
+        g[:line_items] << line_item
+      else
+        groupings[last_parent] = {:process_ssr_organization_name => last_parent_name, :name => name.reverse.join(' > '), :services => [service], :line_items => [line_item], :acks => acks.reverse.uniq.compact}
+      end
+    end
+
+    groupings
+  end
+
   private
 
   def notify_remote_around_update?

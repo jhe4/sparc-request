@@ -496,8 +496,7 @@ class ServiceRequestsController < ApplicationController
 
   # Send notifications to all users.
   def send_notifications(service_request, sub_service_request)
-    xls = render_to_string action: 'show', formats: [:xlsx]
-    send_user_notifications(service_request, xls)
+    send_user_notifications(service_request)
 
     if sub_service_request then
       sub_service_requests = [ sub_service_request ]
@@ -505,11 +504,12 @@ class ServiceRequestsController < ApplicationController
       sub_service_requests = service_request.sub_service_requests
     end
 
-    send_admin_notifications(sub_service_requests, xls)
-    send_service_provider_notifications(service_request, sub_service_requests, xls)
+    send_admin_notifications(sub_service_requests)
+    send_service_provider_notifications(service_request, sub_service_requests)
   end
 
-  def send_user_notifications(service_request, xls)
+  def send_user_notifications(service_request)
+    xls = render_to_string action: 'show', formats: [:xlsx]
     # Does an approval need to be created?  Check that the user
     # submitting has approve rights.
     if service_request.protocol.project_roles.detect{|pr| pr.identity_id == current_user.id}.project_rights != "approve"
@@ -525,7 +525,8 @@ class ServiceRequestsController < ApplicationController
     end
   end
 
-  def send_admin_notifications(sub_service_requests, xls)
+  def send_admin_notifications(sub_service_requests)
+    xls = render_to_string action: 'show', formats: [:xlsx]
     sub_service_requests.each do |sub_service_request|
       sub_service_request.organization.submission_emails_lookup.each do |submission_email|
         Notifier.notify_admin(sub_service_request.service_request, submission_email.email, xls, current_user).deliver
@@ -533,17 +534,33 @@ class ServiceRequestsController < ApplicationController
     end
   end
 
-  def send_service_provider_notifications(service_request, sub_service_requests, xls) #all sub-service requests on service request
+  def send_service_provider_notifications(service_request, sub_service_requests) #all sub-service requests on service request
     sub_service_requests.each do |sub_service_request|
-      send_ssr_service_provider_notifications(service_request, sub_service_request, xls)
+      send_ssr_service_provider_notifications(service_request, sub_service_request)
     end
   end
 
-  def send_ssr_service_provider_notifications(service_request, sub_service_request, xls, ssr_deleted=false) #single sub-service request
+  def send_ssr_service_provider_notifications(service_request, sub_service_request, ssr_deleted=false) #single sub-service request
+    
     previously_submitted_at = service_request.previous_submitted_at.nil? ? Time.now.utc : service_request.previous_submitted_at.utc
     audit_report = sub_service_request.audit_report(current_user, previously_submitted_at, Time.now.utc)
 
     sub_service_request.organization.service_providers.where("(`service_providers`.`hold_emails` != 1 OR `service_providers`.`hold_emails` IS NULL)").each do |service_provider|
+      ssrs_to_be_displayed = []
+      service_request.sub_service_requests.each do |ssr|
+        if ssr.organization.service_providers.first.identity.is_service_provider?(sub_service_request)
+          ssrs_to_be_displayed << ssr
+        end
+      end
+
+      ssrs_to_be_displayed. each do |ssr|
+        @service_list_true = ssr.service_list(true)
+        @service_list_false = ssr.service_list(false)
+        @service_list_nil = ssr.service_list
+      end
+
+      xls = render_to_string action: 'show', formats: [:xlsx]
+
       send_individual_service_provider_notification(service_request, sub_service_request, service_provider, xls, audit_report, ssr_deleted)
     end
   end

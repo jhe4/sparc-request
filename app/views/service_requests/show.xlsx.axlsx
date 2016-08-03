@@ -199,6 +199,10 @@ wb.add_worksheet(name: "Review") do |sheet|
   service_rows = []
   services_sub_header_rows = []
   services_sub_header_rows << sheet.add_row(['Other Services'], :style => name_header_style)
+
+
+
+
   @service_request.service_list(true).each do |key, value|
     next unless @sub_service_request.nil? or @sub_service_request.organization.name == value[:process_ssr_organization_name]
     services_sub_header_rows << sheet.add_row([value[:name]], :style => sub_header_style)
