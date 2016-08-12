@@ -110,9 +110,18 @@ class Dashboard::AssociatedUsersController < Dashboard::BaseController
   end
 
   def destroy
+    modified_user = Identity.find((ProjectRole.find(params[:id])).identity_id)
     @protocol           = @protocol_role.protocol
     epic_access         = @protocol_role.epic_access
     protocol_role_clone = @protocol_role.clone
+    action = "destroy"
+
+    # Alert authorized users of deleted authorized user
+    if SEND_AUTHORIZED_USER_EMAILS
+      @protocol.emailed_associated_users.each do |project_role|
+        UserMailer.authorized_user_changed(project_role.identity, @protocol, modified_user, action).deliver unless project_role.identity.email.blank?
+      end
+    end
     
     @protocol_role.destroy
     

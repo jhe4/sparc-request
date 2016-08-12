@@ -3,7 +3,7 @@ require "rails_helper"
 RSpec.describe Dashboard::AssociatedUserCreator do
   context "params[:project_role] describes a valid ProjectRole" do
     before(:each) do
-      protocol = create(:protocol_without_validations,
+      protocol = create(:study_without_validations,
         primary_pi: create(:identity),
         selected_for_epic: true)
       identity = create(:identity)
@@ -70,7 +70,7 @@ RSpec.describe Dashboard::AssociatedUserCreator do
 
   context "params[:project_role] does not describe a valid ProjectRole" do
     before(:each) do
-      protocol = create(:protocol_without_validations,
+      protocol = create(:study_without_validations,
         primary_pi: create(:identity),
         selected_for_epic: true)
       identity = create(:identity)

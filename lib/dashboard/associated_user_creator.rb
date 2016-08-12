@@ -3,6 +3,8 @@ module Dashboard
     attr_reader :protocol_role
 
     def initialize(params)
+      action = "add"
+      modified_user = Identity.find(params[:identity_id])
       protocol = Protocol.find(params[:protocol_id])
       @protocol_role = protocol.project_roles.build(params)
 
@@ -13,10 +15,12 @@ module Dashboard
             pr.update_attributes(project_rights: 'request', role: 'general-access-user')
           end
         end
+        
         @protocol_role.save
+
         if SEND_AUTHORIZED_USER_EMAILS
           protocol.emailed_associated_users.each do |project_role|
-            UserMailer.authorized_user_changed(project_role.identity, protocol).deliver unless project_role.identity.email.blank?
+            UserMailer.authorized_user_changed(project_role.identity, protocol, modified_user, action).deliver unless project_role.identity.email.blank?
           end
         end
 

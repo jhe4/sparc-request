@@ -30,6 +30,13 @@ RSpec.describe Dashboard::AssociatedUsersController do
           @protocol       = create(:protocol_without_validations, selected_for_epic: false, funding_status: 'funded', funding_source: 'federal')
           @protocol_role  = create(:project_role, protocol: @protocol, identity: @user, project_rights: 'approve', role: 'primary-pi')
 
+          stub_const("SEND_AUTHORIZED_USER_EMAILS", true)
+          expect(UserMailer).to receive(:authorized_user_changed) do
+            mailer = double("mailer")
+            expect(mailer).to receive(:deliver)
+            mailer
+          end
+
           allow(Notifier).to receive(:notify_primary_pi_for_epic_user_removal)
 
           log_in_dashboard_identity(obj: @user)
@@ -59,6 +66,13 @@ RSpec.describe Dashboard::AssociatedUsersController do
           @protocol      = create(:protocol_without_validations, selected_for_epic: false, funding_status: 'funded', funding_source: 'federal')
                            create(:project_role, protocol: @protocol, identity: @user, project_rights: 'approve', role: 'primary-pi')
           @protocol_role = create(:project_role, protocol: @protocol, identity: create(:identity), project_rights: 'approve', role: 'consultant')
+
+          stub_const("SEND_AUTHORIZED_USER_EMAILS", true)
+          expect(UserMailer).to receive(:authorized_user_changed).twice do
+            mailer = double("mailer")
+            expect(mailer).to receive(:deliver)
+            mailer
+          end
 
           allow(Notifier).to receive(:notify_primary_pi_for_epic_user_removal)
 
@@ -92,6 +106,13 @@ RSpec.describe Dashboard::AssociatedUsersController do
 
           stub_const('USE_EPIC', true)
           stub_const('QUEUE_EPIC', false)
+
+          stub_const("SEND_AUTHORIZED_USER_EMAILS", true)
+          expect(UserMailer).to receive(:authorized_user_changed).twice do
+            mailer = double("mailer")
+            expect(mailer).to receive(:deliver)
+            mailer
+          end
           
           allow(Notifier).to receive(:notify_primary_pi_for_epic_user_removal).
             with(@protocol, @protocol_role) do
@@ -118,6 +139,13 @@ RSpec.describe Dashboard::AssociatedUsersController do
           @user           = create(:identity)
           @protocol       = create(:protocol_without_validations, selected_for_epic: false, funding_status: 'funded', funding_source: 'federal')
           @protocol_role  = create(:project_role, protocol: @protocol, identity: @user, project_rights: 'approve', role: 'primary-pi')
+
+          stub_const("SEND_AUTHORIZED_USER_EMAILS", true)
+          expect(UserMailer).to receive(:authorized_user_changed) do
+            mailer = double("mailer")
+            expect(mailer).to receive(:deliver)
+            mailer
+          end
 
           allow(Notifier).to receive(:notify_primary_pi_for_epic_user_removal)
 
