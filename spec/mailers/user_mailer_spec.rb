@@ -29,6 +29,10 @@ RSpec.describe UserMailer do
       user_information_table
     end
 
+    it "should display message conclusion" do
+      expect(@mail).to have_xpath("//p[normalize-space(text()) = 'Please contact the SUCCESS Center at (843) 792-8300 or success@musc.edu for assistance with this process or with any questions you may have.']")
+    end
+
     it "should display acknowledgments" do
       study.service_requests.first.service_list.map{|k, v| v[:acks]}.flatten.uniq.each do |ack|
         expect(@mail).to have_xpath("//p[normalize-space(text()) = '#{ack}']")
@@ -56,6 +60,16 @@ RSpec.describe UserMailer do
 
     it "should display the User information table" do
       user_information_table
+    end
+
+    it "should display message conclusion" do
+      expect(@mail).to have_xpath("//p[normalize-space(text()) = 'Please contact the SUCCESS Center at (843) 792-8300 or success@musc.edu for assistance with this process or with any questions you may have.']")
+    end
+
+    it "should display acknowledgments" do
+      study.service_requests.first.service_list.map{|k, v| v[:acks]}.flatten.uniq.each do |ack|
+        expect(@mail).to have_xpath("//p[normalize-space(text()) = '#{ack}']")
+      end
     end
   end
 end
