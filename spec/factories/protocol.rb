@@ -72,13 +72,12 @@ FactoryGirl.define do
       archived false
     end
 
-    trait :with_sub_service_request_in_cwf do
+    trait :with_sub_service_request do
       after(:create) do |protocol, evaluator|
-        service_request = create(:service_request, protocol: protocol)
+        service_request = create(:service_request_without_validations, protocol: protocol)
 
         SubServiceRequest.skip_callback(:save, :after, :update_org_tree)
-        sub_service_request = build(:sub_service_request_in_cwf, service_request: service_request)
-        sub_service_request.save validate: false
+        sub_service_request = build(:sub_service_request_without_validations, service_request: service_request)
         SubServiceRequest.set_callback(:save, :after, :update_org_tree)
       end
     end
@@ -92,12 +91,6 @@ FactoryGirl.define do
       primary_pi nil
       project_role nil
     end
-
-    # TODO: get this to work!
-    # after(:build) do |protocol, evaluator|
-    #   create_list(:project_role, evaluator.project_role_count,
-    #     protocol: protocol, identity: evaluator.pi)
-    # end
 
     after(:build) do |protocol, evaluator|
       protocol.build_ip_patents_info(attributes_for(:ip_patents_info)) unless protocol.ip_patents_info
@@ -124,7 +117,7 @@ FactoryGirl.define do
       end
     end
 
-    factory :protocol_without_validations, traits: [:without_validations]
+    factory :protocol_without_validations, traits: [:without_validations, :funded, :federal]
     factory :study_without_validations, traits: [:without_validations, :study]
     factory :project_without_validations, traits: [:without_validations, :project]
     factory :unarchived_project_without_validations, traits: [:without_validations, :project, :unarchived]
@@ -132,7 +125,7 @@ FactoryGirl.define do
     factory :unarchived_study_without_validations, traits: [:without_validations, :study, :unarchived]
     factory :archived_study_without_validations, traits: [:without_validations, :study, :archived]
     factory :protocol_federally_funded, traits: [:funded, :federal]
-    factory :protocol_with_sub_service_request_in_cwf, traits: [:with_sub_service_request_in_cwf, :funded, :federal]
+    factory :protocol_with_sub_service_request, traits: [:with_sub_service_request, :funded, :federal, :without_validations]
   end
 
   factory :study, parent: :protocol, class: 'Study' do

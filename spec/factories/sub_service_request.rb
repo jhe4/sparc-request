@@ -45,10 +45,6 @@ FactoryGirl.define do
         sub_service_request: sub_service_request)
     end
 
-    trait :in_cwf do
-      in_work_fulfillment true
-    end
-
     trait :with_subsidy do
       after(:create) do |sub_service_request, evaluator|
         create(:subsidy, sub_service_request: sub_service_request)
