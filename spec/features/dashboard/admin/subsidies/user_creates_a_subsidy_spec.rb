@@ -74,5 +74,17 @@ RSpec.describe "admin subsidy", js: true do
         expect(percent).to eq('20.00')
       end 
     end
+
+    context 'default percentage' do
+
+      it 'should populate the percent subsidy with the default percentage if it is set' do
+        subsidy_map.update_attributes(default_percentage: 5)
+        visit dashboard_sub_service_request_path(sub_service_request.id)
+        click_button 'Request a Subsidy'
+        wait_for_javascript_to_finish
+        percent = find('#pending_subsidy_percent_subsidy').value
+        expect(percent).to eq('5.0')
+      end
+    end
   end
 end
