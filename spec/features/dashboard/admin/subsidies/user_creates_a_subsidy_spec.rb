@@ -45,5 +45,25 @@ RSpec.describe "admin subsidy", js: true do
       find('#pending_subsidy_percent_subsidy').set("20\n")
       expect(page).to have_content('Subsidy Pending Approval')
     end
+
+    context 'validations and calculations' do
+
+      it 'should not allow the admin to set the percent subsidy to zero' do
+        visit dashboard_sub_service_request_path(sub_service_request.id)
+        click_button 'Request a Subsidy'
+        wait_for_javascript_to_finish
+        click_button 'Save'
+        expect(page).to have_content('Percent subsidy can not be 0')
+      end
+
+      it 'should calculate the pi contribution if the percent subsidy is set' do
+        visit dashboard_sub_service_request_path(sub_service_request.id)
+        click_button 'Request a Subsidy'
+        wait_for_javascript_to_finish
+        find('#pending_subsidy_percent_subsidy').set("20\n")
+        pi_contribution = find('#pending_subsidy_pi_contribution').value
+        expect(pi_contribution).to eq('8.00')
+      end
+    end
   end
 end
