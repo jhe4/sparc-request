@@ -64,6 +64,15 @@ RSpec.describe "admin subsidy", js: true do
         pi_contribution = find('#pending_subsidy_pi_contribution').value
         expect(pi_contribution).to eq('8.00')
       end
+
+      it 'should calculate the percent subsidy if the pi contribution is set' do
+        visit dashboard_sub_service_request_path(sub_service_request.id)
+        click_button 'Request a Subsidy'
+        wait_for_javascript_to_finish
+        find('#pending_subsidy_pi_contribution').set("8\n")
+        percent = find('#pending_subsidy_percent_subsidy').value
+        expect(percent).to eq('20.00')
+      end 
     end
   end
 end
