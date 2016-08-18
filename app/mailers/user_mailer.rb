@@ -30,6 +30,23 @@ class UserMailer < ActionMailer::Base
     send_message("#{I18n.t('application_title')} Authorized Users")
   end
 
+  def authorized_users_changed(user, protocol, added_users, deleted_users)
+    @action = 'both'
+    @added_users = added_users
+    @deleted_users = deleted_users
+    modified_user_ids = added_users + deleted_users
+
+    @modified_users = []
+    modified_user_ids.each do |id|
+      @modified_users << Identity.find(id)
+    end
+
+    @send_to = user
+    @protocol = protocol
+    @protocol_link = DASHBOARD_LINK + "/protocols/#{@protocol.id}"
+    send_message("#{I18n.t('application_title')} Authorized Users")
+  end
+
   def notification_received(user, ssr)
     @send_to = user
 

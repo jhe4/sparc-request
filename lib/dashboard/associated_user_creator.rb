@@ -17,7 +17,7 @@ module Dashboard
         end
         @protocol_role.save
         
-        protocol.email_about_change_in_authorized_user(modified_user, action)
+        protocol.email_about_change_in_authorized_user_dashboard(modified_user, action)
 
         if USE_EPIC && protocol.selected_for_epic && !QUEUE_EPIC
           Notifier.notify_for_epic_user_approval(protocol).deliver
