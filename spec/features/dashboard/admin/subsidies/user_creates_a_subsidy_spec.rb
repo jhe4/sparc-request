@@ -19,8 +19,7 @@ RSpec.describe "admin subsidy", js: true do
   describe 'user clicks request a subsidy' do
 
     it 'should bring up the subsidy modal' do
-      visit dashboard_sub_service_request_path(sub_service_request.id)
-      click_button 'Request a Subsidy'
+      visit_admin_section_and_request_subsidy
       expect(page).to have_content('New Subsidy Pending Approval')
     end
   end
@@ -39,9 +38,7 @@ RSpec.describe "admin subsidy", js: true do
 
 
     it 'should create a pending subsidy' do
-      visit dashboard_sub_service_request_path(sub_service_request.id)
-      click_button 'Request a Subsidy'
-      wait_for_javascript_to_finish
+      visit_admin_section_and_request_subsidy
       find('#pending_subsidy_percent_subsidy').set("20\n")
       expect(page).to have_content('Subsidy Pending Approval')
     end
@@ -49,26 +46,20 @@ RSpec.describe "admin subsidy", js: true do
     context 'validations and calculations' do
 
       it 'should not allow the admin to set the percent subsidy to zero' do
-        visit dashboard_sub_service_request_path(sub_service_request.id)
-        click_button 'Request a Subsidy'
-        wait_for_javascript_to_finish
+        visit_admin_section_and_request_subsidy
         click_button 'Save'
         expect(page).to have_content('Percent subsidy can not be 0')
       end
 
       it 'should calculate the pi contribution if the percent subsidy is set' do
-        visit dashboard_sub_service_request_path(sub_service_request.id)
-        click_button 'Request a Subsidy'
-        wait_for_javascript_to_finish
+        visit_admin_section_and_request_subsidy
         find('#pending_subsidy_percent_subsidy').set("20\n")
         pi_contribution = find('#pending_subsidy_pi_contribution').value
         expect(pi_contribution).to eq('8.00')
       end
 
       it 'should calculate the percent subsidy if the pi contribution is set' do
-        visit dashboard_sub_service_request_path(sub_service_request.id)
-        click_button 'Request a Subsidy'
-        wait_for_javascript_to_finish
+        visit_admin_section_and_request_subsidy
         find('#pending_subsidy_pi_contribution').set("8\n")
         percent = find('#pending_subsidy_percent_subsidy').value
         expect(percent).to eq('20.00')
@@ -79,12 +70,16 @@ RSpec.describe "admin subsidy", js: true do
 
       it 'should populate the percent subsidy with the default percentage if it is set' do
         subsidy_map.update_attributes(default_percentage: 5)
-        visit dashboard_sub_service_request_path(sub_service_request.id)
-        click_button 'Request a Subsidy'
-        wait_for_javascript_to_finish
+        visit_admin_section_and_request_subsidy
         percent = find('#pending_subsidy_percent_subsidy').value
         expect(percent).to eq('5.0')
       end
     end
+  end
+
+  def visit_admin_section_and_request_subsidy
+    visit dashboard_sub_service_request_path(sub_service_request.id)
+    click_button 'Request a Subsidy'
+    wait_for_javascript_to_finish
   end
 end
