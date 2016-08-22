@@ -28,9 +28,7 @@ RSpec.describe "admin subsidy", js: true do
   describe 'admin approves a subsidy' do
 
     it 'should create a new approved subsidy' do
-      visit dashboard_sub_service_request_path(sub_service_request.id)
-      click_button 'Request a Subsidy'
-      wait_for_javascript_to_finish
+      visit_admin_section_and_request_subsidy
       find('#pending_subsidy_percent_subsidy').set("20\n")
       click_button 'Save'
       wait_for_javascript_to_finish
@@ -40,9 +38,7 @@ RSpec.describe "admin subsidy", js: true do
     end
 
     it 'should not validate max percentage for an admin and allow a subsidy over the max to be approved' do
-      visit dashboard_sub_service_request_path(sub_service_request.id)
-      click_button 'Request a Subsidy'
-      wait_for_javascript_to_finish
+      visit_admin_section_and_request_subsidy
       find('#pending_subsidy_percent_subsidy').set("60\n")
       click_button 'Save'
       wait_for_javascript_to_finish
@@ -50,5 +46,11 @@ RSpec.describe "admin subsidy", js: true do
       wait_for_javascript_to_finish
       expect(page).to have_content('Current Effective Subsidy')
     end
+  end
+
+  def visit_admin_section_and_request_subsidy
+    visit dashboard_sub_service_request_path(sub_service_request.id)
+    click_button 'Request a Subsidy'
+    wait_for_javascript_to_finish
   end
 end

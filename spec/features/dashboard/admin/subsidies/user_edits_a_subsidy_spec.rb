@@ -28,7 +28,25 @@ RSpec.describe "admin subsidy", js: true do
   describe 'user edits a subsidy' do
 
     it 'should save the new values' do
-      
+      visit_admin_section_and_request_subsidy
+      create_a_new_subsidy
+      find('#edit_subsidy_button').click
+      find('#pending_subsidy_percent_subsidy').set("20\n")
+      click_button 'Save'
+      wait_for_javascript_to_finish
+      expect(find('.subsidy_percent').text).to eq('20.0')
     end
+  end
+
+  def visit_admin_section_and_request_subsidy
+    visit dashboard_sub_service_request_path(sub_service_request.id)
+    click_button 'Request a Subsidy'
+    wait_for_javascript_to_finish
+  end
+
+  def create_a_new_subsidy
+    find('#pending_subsidy_percent_subsidy').set("20\n")
+    click_button 'Save'
+    wait_for_javascript_to_finish
   end
 end
