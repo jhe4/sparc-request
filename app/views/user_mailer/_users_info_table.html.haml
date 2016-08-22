@@ -12,7 +12,6 @@
         %th{:style => 'border: 1px solid black;'}= t(:notifier)[:epic_access]
   %tbody
     - @modified_users.each do |modified_user|
-      - binding.pry
       %tr{:style => 'border: 1px solid black;'}
         %td{:style => 'border: 1px solid black; text-align: center;'}= modified_user.full_name
         %td{:style => 'border: 1px solid black; text-align: center;'}= modified_user.email

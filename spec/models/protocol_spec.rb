@@ -104,7 +104,7 @@ RSpec.describe 'Protocol' do
     end
   end
 
-  describe "email_about_change_in_authorized_user(modified_user, action)" do
+  describe "email_about_change_in_authorized_user_dashboard(modified_user, action)" do
     context "SEND_AUTHORIZED_USER_EMAILS: TRUE && SSRs all have status of 'draft'" do
       it 'should not send emails' do
         identity     = create(:identity)
@@ -112,7 +112,7 @@ RSpec.describe 'Protocol' do
         organization = create(:organization)
         create(:sub_service_request_without_validations, service_request: service_request, organization: organization, status: 'draft')
         stub_const("SEND_AUTHORIZED_USER_EMAILS", true)
-        mail_response = project.email_about_change_in_authorized_user(identity, action)
+        mail_response = project.email_about_change_in_authorized_user_dashboard(identity, action)
         expect(mail_response).to eq nil
       end
     end
@@ -124,7 +124,7 @@ RSpec.describe 'Protocol' do
         organization = create(:organization)
         create(:sub_service_request_without_validations, service_request: service_request, organization: organization, status: 'draft')
         stub_const("SEND_AUTHORIZED_USER_EMAILS", false)
-        mail_response = project.email_about_change_in_authorized_user(identity, action)
+        mail_response = project.email_about_change_in_authorized_user_dashboard(identity, action)
         expect(mail_response).to eq nil
       end
     end
@@ -134,9 +134,10 @@ RSpec.describe 'Protocol' do
         identity     = create(:identity)
         action       = 'added'
         organization = create(:organization)
+        create(:project_role, protocol: project, identity: identity, project_rights: 'approve', role: 'primary-pi')
         create(:sub_service_request_without_validations, service_request: service_request, organization: organization, status: 'complete')
         stub_const("SEND_AUTHORIZED_USER_EMAILS", true)
-        mail_response = project.email_about_change_in_authorized_user(identity, action)
+        mail_response = project.email_about_change_in_authorized_user_dashboard(identity, action)
         expect(mail_response).to eq(project.project_roles)
       end
     end
@@ -148,7 +149,7 @@ RSpec.describe 'Protocol' do
         organization = create(:organization)
         create(:sub_service_request_without_validations, service_request: service_request, organization: organization, status: 'complete')
         stub_const("SEND_AUTHORIZED_USER_EMAILS", false)
-        mail_response = project.email_about_change_in_authorized_user(identity, action)
+        mail_response = project.email_about_change_in_authorized_user_dashboard(identity, action)
         expect(mail_response).to eq nil
       end
     end     
