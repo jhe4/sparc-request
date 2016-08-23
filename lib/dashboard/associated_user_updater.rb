@@ -27,7 +27,7 @@ module Dashboard
 
         if SEND_AUTHORIZED_USER_EMAILS
           protocol.emailed_associated_users.each do |project_role|
-            UserMailer.authorized_user_changed(project_role.identity, protocol).deliver unless project_role.identity.email.blank?
+            UserMailer.authorized_user_changed_dashboard(project_role.identity, protocol).deliver unless project_role.identity.email.blank?
           end
         end
 

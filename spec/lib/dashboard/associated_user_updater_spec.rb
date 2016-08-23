@@ -41,12 +41,12 @@ RSpec.describe Dashboard::AssociatedUserUpdater do
         protocol_id: protocol.id,
         role: "important",
         project_rights: "to-party")
-      expect(UserMailer).to receive(:authorized_user_changed).with(primary_pi, protocol) do
+      expect(UserMailer).to receive(:authorized_user_changed_dashboard).with(primary_pi, protocol) do
         mailer_stub = double('mailer')
         expect(mailer_stub).to receive(:deliver)
         mailer_stub
       end
-      expect(UserMailer).to receive(:authorized_user_changed).with(identity, protocol) do
+      expect(UserMailer).to receive(:authorized_user_changed_dashboard).with(identity, protocol) do
         mailer_stub = double('mailer')
         expect(mailer_stub).to receive(:deliver)
         mailer_stub
@@ -64,11 +64,11 @@ RSpec.describe Dashboard::AssociatedUserUpdater do
         protocol_id: protocol.id,
         role: "important",
         project_rights: "to-party")
-      allow(UserMailer).to receive(:authorized_user_changed)
+      allow(UserMailer).to receive(:authorized_user_changed_dashboard)
 
       Dashboard::AssociatedUserUpdater.new(id: project_role.id, project_role: { role: "not-important" })
 
-      expect(UserMailer).not_to have_received(:authorized_user_changed)
+      expect(UserMailer).not_to have_received(:authorized_user_changed_dashboard)
     end
   end
 

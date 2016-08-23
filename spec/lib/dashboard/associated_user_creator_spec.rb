@@ -34,7 +34,7 @@ RSpec.describe Dashboard::AssociatedUserCreator do
     context "SEND_AUTHORIZED_USER_EMAILS: true && send_email: true" do
       it "should send authorized user changed emails" do
         stub_const("SEND_AUTHORIZED_USER_EMAILS", true)
-        expect(UserMailer).to receive(:authorized_user_changed).twice do
+        expect(UserMailer).to receive(:authorized_user_changed_dashboard).twice do
           mailer = double("mailer")
           expect(mailer).to receive(:deliver)
           mailer
@@ -47,9 +47,9 @@ RSpec.describe Dashboard::AssociatedUserCreator do
       it "should NOT send authorized user changed emails" do
         stub_const("SEND_AUTHORIZED_USER_EMAILS", true)
         @ssr.update_attribute(:status, 'draft')
-        allow(UserMailer).to receive(:authorized_user_changed)
+        allow(UserMailer).to receive(:authorized_user_changed_dashboard)
         Dashboard::AssociatedUserCreator.new(@project_role_attrs)
-        expect(UserMailer).not_to have_received(:authorized_user_changed)
+        expect(UserMailer).not_to have_received(:authorized_user_changed_dashboard)
       end
     end
 
@@ -57,18 +57,18 @@ RSpec.describe Dashboard::AssociatedUserCreator do
       it "should not send authorized user changed emails" do
         stub_const("SEND_AUTHORIZED_USER_EMAILS", false)
         @ssr.update_attribute(:status, 'complete')
-        allow(UserMailer).to receive(:authorized_user_changed)
+        allow(UserMailer).to receive(:authorized_user_changed_dashboard)
         Dashboard::AssociatedUserCreator.new(@project_role_attrs)
-        expect(UserMailer).not_to have_received(:authorized_user_changed)
+        expect(UserMailer).not_to have_received(:authorized_user_changed_dashboard)
       end
     end
 
     context "SEND_AUTHORIZED_USER_EMAILS false && send_email: false" do
       it "should not send authorized user changed emails" do
         stub_const("SEND_AUTHORIZED_USER_EMAILS", false)
-        allow(UserMailer).to receive(:authorized_user_changed)
+        allow(UserMailer).to receive(:authorized_user_changed_dashboard)
         Dashboard::AssociatedUserCreator.new(@project_role_attrs)
-        expect(UserMailer).not_to have_received(:authorized_user_changed)
+        expect(UserMailer).not_to have_received(:authorized_user_changed_dashboard)
       end
     end
 
@@ -114,11 +114,11 @@ RSpec.describe Dashboard::AssociatedUserCreator do
     context "SEND_AUTHORIZED_USER_EMAILS true" do
       it "should not send authorized user changed emails" do
         stub_const("SEND_AUTHORIZED_USER_EMAILS", true)
-        allow(UserMailer).to receive(:authorized_user_changed)
+        allow(UserMailer).to receive(:authorized_user_changed_dashboard)
 
         Dashboard::AssociatedUserCreator.new(@project_role_attrs)
 
-        expect(UserMailer).not_to have_received(:authorized_user_changed)
+        expect(UserMailer).not_to have_received(:authorized_user_changed_dashboard)
       end
     end
 

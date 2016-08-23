@@ -11,7 +11,7 @@ RSpec.describe Dashboard::AssociatedUsersController do
             epic_access: false,
             protocol: @protocol)
         end
-        allow(@protocol).to receive(:email_about_change_in_authorized_user)
+        allow(@protocol).to receive(:email_about_change_in_authorized_user_dashboard)
 
         log_in_dashboard_identity(obj: build_stubbed(:identity))
 
@@ -34,7 +34,7 @@ RSpec.describe Dashboard::AssociatedUsersController do
           @protocol_role  = create(:project_role, protocol: @protocol, identity: @user, project_rights: 'approve', role: 'primary-pi')
 
           allow(Notifier).to receive(:notify_primary_pi_for_epic_user_removal)
-          allow(UserMailer).to receive(:authorized_user_changed) do
+          allow(UserMailer).to receive(:authorized_user_changed_dashboard) do
             mailer = double()
             expect(mailer).to receive(:deliver)
             mailer
@@ -46,7 +46,7 @@ RSpec.describe Dashboard::AssociatedUsersController do
         end
 
         it 'should email authorized user' do
-          expect(UserMailer).to have_received(:authorized_user_changed)
+          expect(UserMailer).to have_received(:authorized_user_changed_dashboard)
         end
 
         it 'should destroy @protocol_role' do
@@ -75,7 +75,7 @@ RSpec.describe Dashboard::AssociatedUsersController do
           @protocol_role = create(:project_role, protocol: @protocol, identity: @user_to_delete, project_rights: 'approve', role: 'consultant')
 
           allow(Notifier).to receive(:notify_primary_pi_for_epic_user_removal)
-          allow(UserMailer).to receive(:authorized_user_changed) do
+          allow(UserMailer).to receive(:authorized_user_changed_dashboard) do
             mailer = double()
             expect(mailer).to receive(:deliver)
             mailer
@@ -99,7 +99,7 @@ RSpec.describe Dashboard::AssociatedUsersController do
 
         it 'should email authorized user' do
           xhr :delete, :destroy, id: @protocol_role.id
-          expect(UserMailer).to have_received(:authorized_user_changed).twice
+          expect(UserMailer).to have_received(:authorized_user_changed_dashboard).twice
         end
 
         it 'blah' do
@@ -112,7 +112,7 @@ RSpec.describe Dashboard::AssociatedUsersController do
           it 'should not email user' do
             @ssr.update_attribute(:status, 'draft')
             xhr :delete, :destroy, id: @protocol_role.id
-            expect(UserMailer).not_to have_received(:authorized_user_changed)
+            expect(UserMailer).not_to have_received(:authorized_user_changed_dashboard)
           end
         end
       end

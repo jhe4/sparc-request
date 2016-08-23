@@ -21,7 +21,8 @@
 class UserMailer < ActionMailer::Base
   default :from => NO_REPLY_FROM 
 
-  def authorized_user_changed(user, protocol, modified_user, action)
+  # authorized user modified in dashboard
+  def authorized_user_changed_dashboard(user, protocol, modified_user, action)
     @action = action
     @modified_user = modified_user
     @send_to = user
@@ -30,7 +31,9 @@ class UserMailer < ActionMailer::Base
     send_message("#{I18n.t('application_title')} Authorized Users")
   end
 
-  def authorized_users_changed(user, protocol, added_users, deleted_users)
+  # authorized user(s) modified in proper
+  def authorized_users_changed_proper(user, protocol, added_users, deleted_users)
+    binding.pry
     @action = 'both'
     @added_users = added_users
     @deleted_users = deleted_users

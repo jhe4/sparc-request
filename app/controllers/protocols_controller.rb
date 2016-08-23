@@ -116,7 +116,7 @@ class ProtocolsController < ApplicationController
     added_user_ids = new_authorized_user_ids - previous_authorized_user_ids
 
     if !added_user_ids.empty? || !deleted_user_ids.empty?
-      @protocol.email_about_change_in_authorized_users(added_user_ids, deleted_user_ids)
+      @protocol.email_about_change_in_authorized_users_proper(added_user_ids, deleted_user_ids)
     end
 
     @protocol.validate_nct = true
