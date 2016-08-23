@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe "admin subsidy", js: true do
+RSpec.describe 'user approves subsidy', js: true do
   let_there_be_lane
   fake_login_for_each_test
 
@@ -16,7 +16,7 @@ RSpec.describe "admin subsidy", js: true do
                                project_rights: 'approve', role: 'primary-pi') }
   let!(:admin)               { create(:super_user, organization: institution, identity: Identity.find_by_ldap_uid('jug2')) }
   let!(:pricing_setup)       { create(:pricing_setup, organization: institution) }
-  let!(:service)             { create(:service, organization: institution, name: 'Stay out of dat personal space') }
+  let!(:service)             { create(:service, organization: institution, name: 'The Adventures of Stealy') }
   let!(:line_item)           { create(:line_item, service_request: service_request, service: service,
                                sub_service_request: sub_service_request, quantity: 1) }
   let!(:line_items_visit)    { create(:line_items_visit, line_item: line_item, arm: arm, subject_count: 1) }
