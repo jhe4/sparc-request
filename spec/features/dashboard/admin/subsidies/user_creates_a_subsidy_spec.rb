@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe "admin subsidy", js: true do
+RSpec.describe 'user creates a subsidy', js: true do
   let_there_be_lane
   fake_login_for_each_test
 
