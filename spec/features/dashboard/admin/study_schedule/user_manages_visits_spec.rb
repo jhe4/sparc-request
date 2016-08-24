@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe 'user manages arms', js: true do
+RSpec.describe 'user manages visits', js: true do
 
   let_there_be_lane
   fake_login_for_each_test
@@ -25,34 +25,46 @@ RSpec.describe 'user manages arms', js: true do
   let!(:pricing_map)         { create(:pricing_map, unit_minimum: 1, unit_factor: 1, service_id: service.id,
                                display_date: Time.now - 1.day, full_rate: 1000, federal_rate: 1000, units_per_qty_max: 20) }
 
-  describe 'clicking the add arm button' do
+  describe 'clicking the edit visit button' do
 
-    it 'should bring up the modal' do
-      visit_admin_section_and_go_to_study_schedule('#add_arm_button')
-      expect(page).to have_content('Add Arm')
-    end
-
-    it 'should validate for the name' do
-      visit_admin_section_and_go_to_study_schedule('#add_arm_button')
-      click_button 'Add'
-      expect(page).to have_content("Name can't be blank")
-    end
-
-    it 'should add the arm' do
-      visit_admin_section_and_go_to_study_schedule('#add_arm_button')
-      find('#arm_name').set('Real Fake Doors')
-      click_button 'Add'
-      expect(page).to have_content('Per Patient/Visit Services -- Real Fake Doors')
+    it 'should change the visit name' do
+      visit_admin_section_and_go_to_study_schedule('#edit_visit_group_button')
+      find('#visit_group_name').set('Stealy')
+      click_button 'Save'
+      expect(page).to have_content('Stealy')
     end
   end
 
-  describe 'clicking the edit arm button' do
+  describe 'clicking the add visit button' do
 
-    it 'should change the arm name' do
-      visit_admin_section_and_go_to_study_schedule('#edit_arm_button')
-      find('#arm_name').set('Jan Michael Vincent')
-      click_button 'Save'
-      expect(page).to have_content('Per Patient/Visit Services -- Jan Michael Vincent')
+    it 'should bring up the modal' do
+      visit_admin_section_and_go_to_study_schedule('#add_visit_group_button')
+      expect(page).to have_content('Add Visit')
+    end
+
+    it 'should create a visit' do
+      visit_admin_section_and_go_to_study_schedule('#add_visit_group_button')
+      find('#visit_group_name').set('Eye Holes')
+      find('#visit_group_day').set('2')
+      click_button 'Add'
+      expect(page).to have_content('Eye Holes')
+    end
+
+    context 'validations' do
+
+      it 'should require the day' do
+        visit_admin_section_and_go_to_study_schedule('#add_visit_group_button')
+        click_button 'Add'
+        expect(page).to have_content("Invalid day You've entered an invalid number for the day. Please enter a valid number.")
+      end
+
+      it 'should require the day to be in order' do
+        visit_admin_section_and_go_to_study_schedule('#add_visit_group_button')
+        visit_count = VisitGroup.count
+        find('#visit_group_day').set('1')
+        click_button 'Add'
+        expect(VisitGroup.count).to eq(visit_count)
+      end
     end
   end
 
