@@ -33,7 +33,6 @@ class UserMailer < ActionMailer::Base
 
   # authorized user(s) modified in proper
   def authorized_users_changed_proper(user, protocol, added_users, deleted_users)
-    binding.pry
     @action = 'both'
     @added_users = added_users
     @deleted_users = deleted_users
@@ -43,7 +42,6 @@ class UserMailer < ActionMailer::Base
     modified_user_ids.each do |id|
       @modified_users << Identity.find(id)
     end
-
     @send_to = user
     @protocol = protocol
     @protocol_link = DASHBOARD_LINK + "/protocols/#{@protocol.id}"

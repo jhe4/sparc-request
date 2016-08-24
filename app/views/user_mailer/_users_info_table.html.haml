@@ -1,7 +1,7 @@
 %table{:style => 'border: 1px solid #000; width: 100%; border-collapse: collapse;'}
   %thead
     %tr{:style => 'border: 1px solid black;'}
-      %td{:colspan => 5}
+      %td{:colspan => 6}
         %strong= t(:notifier)[:u_info]
     %tr
       %th{:style => 'border: 1px solid black;'}= t(:mailer)[:user_modification]
@@ -10,6 +10,7 @@
       %th{:style => 'border: 1px solid black;'}= t(:mailer)[:proxy]
       - if !@protocol.selected_for_epic.nil?
         %th{:style => 'border: 1px solid black;'}= t(:notifier)[:epic_access]
+      %th{:style => 'border: 1px solid black;'}= t(:mailer)[:action]
   %tbody
     - @modified_users.each do |modified_user|
       %tr{:style => 'border: 1px solid black;'}
@@ -19,3 +20,7 @@
         %td{:style => 'border: 1px solid black; text-align: center;'}= modified_user.project_roles.first.display_rights
         - if !@protocol.selected_for_epic.nil?
           %td{:style => 'border: 1px solid black; text-align: center;'}= modified_user.project_roles.first.epic_access == true ? "Yes" : "No"
+        - if @deleted_users.include?(modified_user.id.to_s)
+          %td{:style => 'border: 1px solid black; text-align: center;'}= t(:mailer)[:deleted]
+        - else
+          %td{:style => 'border: 1px solid black; text-align: center;'}= t(:mailer)[:added]

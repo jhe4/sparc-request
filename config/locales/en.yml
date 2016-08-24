@@ -1575,9 +1575,12 @@ en:
 
   # Mailer
   mailer:
+    action: "Action"
+    added:  "Added"
     add_intro: "An Authorized User has been added in"
-    both_intro:  "Authorized Users have been added or deleted in"
+    both_intro:  "Authorized Users have been added and/or deleted in"
     contact_information: "Contact Information"
+    deleted: "Deleted"
     delete_intro: "An Authorized User has been deleted in"
     epic_access: "Epic Access"
     name: "Name:"
