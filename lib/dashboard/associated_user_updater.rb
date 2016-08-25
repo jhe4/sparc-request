@@ -25,21 +25,21 @@ module Dashboard
         # must come after the use of ActiveModel::Dirty methods above
         @protocol_role.save
 
-        if SEND_AUTHORIZED_USER_EMAILS
-          protocol.emailed_associated_users.each do |project_role|
-            UserMailer.authorized_user_changed_dashboard(project_role.identity, protocol).deliver unless project_role.identity.email.blank?
-          end
-        end
+        # if SEND_AUTHORIZED_USER_EMAILS
+        #   protocol.emailed_associated_users.each do |project_role|
+        #     UserMailer.authorized_user_changed_dashboard(project_role.identity, protocol).deliver unless project_role.identity.email.blank?
+        #   end
+        # end
 
-        if USE_EPIC && protocol.selected_for_epic && !QUEUE_EPIC
-          if access_removed
-            Notifier.notify_for_epic_access_removal(protocol, @protocol_role).deliver
-          elsif access_granted
-            Notifier.notify_for_epic_user_approval(protocol).deliver
-          elsif epic_rights != @protocol_role.epic_rights.to_a
-            Notifier.notify_for_epic_rights_changes(protocol, @protocol_role, epic_rights).deliver
-          end
-        end
+        # if USE_EPIC && protocol.selected_for_epic && !QUEUE_EPIC
+        #   if access_removed
+        #     Notifier.notify_for_epic_access_removal(protocol, @protocol_role).deliver
+        #   elsif access_granted
+        #     Notifier.notify_for_epic_user_approval(protocol).deliver
+        #   elsif epic_rights != @protocol_role.epic_rights.to_a
+        #     Notifier.notify_for_epic_rights_changes(protocol, @protocol_role, epic_rights).deliver
+        #   end
+        # end
       else
         @success = false
       end
