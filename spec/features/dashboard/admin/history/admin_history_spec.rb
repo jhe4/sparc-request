@@ -30,36 +30,18 @@
 #     it 'should change the status' do
 #       visit_admin_history_tab
 #       save_and_open_screenshot
-#       find('#sub_service_request_status', visible: false)
-#       select('Draft', from: '#sub_service_request_status', visible: false)
+#       bootstrap_select "#sub_service_request_status", 'draft'
+#       # find('#sub_service_request_status', visible: false).set('Draft')
+#       # select('Draft', from: '#sub_service_request_status', visible: false)
 #       wait_for_javascript_to_finish
 #       save_and_open_screenshot
-#       # expect(page).to have_content('Draft')
+#       expect(sub_service_request.status).to eq('Draft')
 #     end
 #   end
 
 #     # it 'should be added to the history log' do
 
-#     # it 'should create a new approved subsidy' do
-#     #   visit_admin_section_and_request_subsidy
-#     #   find('#pending_subsidy_percent_subsidy').set("20\n")
-#     #   click_button 'Save'
-#     #   wait_for_javascript_to_finish
-#     #   find('#approve_subsidy_button').click
-#     #   wait_for_javascript_to_finish
-#     #   expect(page).to have_content('Current Effective Subsidy')
-#     # end
 
-# #     it 'should not validate max percentage for an admin and allow a subsidy over the max to be approved' do
-# #       visit_admin_section_and_request_subsidy
-# #       find('#pending_subsidy_percent_subsidy').set("60\n")
-# #       click_button 'Save'
-# #       wait_for_javascript_to_finish
-# #       find('#approve_subsidy_button').click
-# #       wait_for_javascript_to_finish
-# #       expect(page).to have_content('Current Effective Subsidy')
-# #     end
-# #   end
 
 #   def visit_admin_history_tab
 #     visit dashboard_sub_service_request_path(sub_service_request.id)
