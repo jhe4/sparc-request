@@ -10,7 +10,7 @@ RSpec.describe 'user manages services', js: true do
   let!(:institution)         { create(:institution) }
   let!(:sub_service_request) { create(:sub_service_request_without_validations, service_request: service_request,
                                organization: institution, status: 'submitted') }
-  let!(:arm)                 { create(:arm, name: 'Two Brothers', protocol: protocol, visit_count: 1, subject_count: 1) }
+  let!(:arm)                 { create(:arm, name: 'Mr. Jellybean', protocol: protocol, visit_count: 1, subject_count: 1) }
   let!(:visit_group)         { create(:visit_group, arm: arm, position: 1, day: 1) }
   let!(:project_role)        { create(:project_role, protocol: protocol, identity: Identity.find_by_ldap_uid('jug2'),
                                project_rights: 'approve', role: 'primary-pi') }
