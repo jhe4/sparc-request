@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe 'user approves subsidy', js: true do
   let_there_be_lane
-  fake_login_for_each_testq
+  fake_login_for_each_test
 
   before :each do
     protocol             = create(:protocol_without_validations, type: 'Study')
