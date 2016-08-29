@@ -98,10 +98,9 @@ class ProtocolsController < ApplicationController
   end
 
   def update
-    
     @service_request = ServiceRequest.find session[:service_request_id]
     @current_step = cookies['current_step']
-    @protocol = current_user.protocols.find params[:id]
+    @protocol = @service_request.protocol
     # records the original authorized users
     previous_authorized_user_ids = @protocol.identities.pluck(:id).map(&:to_s)
 
@@ -142,18 +141,23 @@ class ProtocolsController < ApplicationController
     end
     cookies['current_step'] = @current_step
 
+    ###### EMAIL ABOUT CHANGE IN AUTHORIZED USERS ######
     protocol_params = params[:study] || params[:project]
-    if protocol_params && protocol_params[:protocol_roles_attributes]
+    if protocol_params && protocol_params[:project_roles_attributes]
       deleted_user_ids = []
-      new_authorized_user_ids = params[:study][:project_roles_attributes].values.map do |project_role|
+
+      # Gather deleted users
+      new_authorized_user_ids = protocol_params[:project_roles_attributes].values.map do |project_role|
         if project_role["_destroy"] == 'true'
           deleted_user_ids << project_role[:identity_id]
         end
         project_role[:identity_id]
       end
 
+      # Gather added users
       added_user_ids = new_authorized_user_ids - previous_authorized_user_ids
 
+      # Email authorized users about modification
       if !added_user_ids.empty? || !deleted_user_ids.empty?
         @protocol.email_about_change_in_authorized_users_proper(added_user_ids, deleted_user_ids)
       end

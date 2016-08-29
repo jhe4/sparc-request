@@ -23,18 +23,28 @@ require 'rails_helper'
 # index new create edit update delete show
 
 RSpec.describe ProjectsController do
-  let!(:service_request) { FactoryGirl.create(:service_request_without_validations) }
-  let!(:identity) { create(:identity) }
 
   stub_controller
 
   context 'do not have a project' do
+
+    before :each do
+      @user           = create(:identity)
+      session[:identity_id] = @user.id
+      @protocol       = create(:study_without_validations, selected_for_epic: false, funding_status: 'funded', funding_source: 'federal')
+      @service_request = create(:service_request_without_validations, protocol: @protocol)
+
+      create(:sub_service_request, status: 'not_draft', organization: create(:organization), service_request: @service_request)
+      @protocol_role  = create(:project_role, protocol: @protocol, identity: @user, project_rights: 'approve', role: 'primary-pi')
+      @protocol.reload
+    end
+
     describe 'GET new' do
       it 'should set service_request' do
-        session[:service_request_id] = service_request.id
-        session[:identity_id] = identity.id
+        session[:service_request_id] = @service_request.id
+        session[:identity_id] = @user.id
         get :new, { id: nil, format: :js }.with_indifferent_access
-        expect(assigns(:service_request)).to eq service_request
+        expect(assigns(:service_request)).to eq @service_request
       end
 
       it 'should set project' do
