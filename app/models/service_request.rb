@@ -518,7 +518,7 @@ class ServiceRequest < ActiveRecord::Base
     end
 
     self.save(validate: use_validation)
-    
+
     to_notify
   end
 
@@ -591,6 +591,10 @@ class ServiceRequest < ActiveRecord::Base
 
   def has_non_first_draft_ssrs?
     sub_service_requests.where.not(status: 'first_draft').any?
+  end
+
+  def acknowledgments
+    service_list.values.flat_map { |v| v[:acks] }.uniq
   end
 
   private

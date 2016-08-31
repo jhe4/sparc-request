@@ -14,7 +14,7 @@ RSpec.describe UserMailer do
       @protocol_role            = create(:project_role, protocol: study, identity: @modified_identity, project_rights: 'approve', role: 'consultant')
       @mail = UserMailer.authorized_user_changed(@identity, study, @modified_identity, 'add')
     end
-  
+
     it "should display the 'added' message" do
       # An Authorized User has been added in SparcDashboard ***(link to protocol)***
       expect(@mail).to have_xpath("//p[normalize-space(text()) = 'An Authorized User has been added in']")
@@ -34,7 +34,7 @@ RSpec.describe UserMailer do
     end
 
     it "should display acknowledgments" do
-      study.service_requests.first.service_list.map{|k, v| v[:acks]}.flatten.uniq.each do |ack|
+      study.service_requests.first.acknowledgments.each do |ack|
         expect(@mail).to have_xpath("//p[normalize-space(text()) = '#{ack}']")
       end
     end
@@ -67,7 +67,7 @@ RSpec.describe UserMailer do
     end
 
     it "should display acknowledgments" do
-      study.service_requests.first.service_list.map{|k, v| v[:acks]}.flatten.uniq.each do |ack|
+      study.service_requests.first.acknowledgments.each do |ack|
         expect(@mail).to have_xpath("//p[normalize-space(text()) = '#{ack}']")
       end
     end

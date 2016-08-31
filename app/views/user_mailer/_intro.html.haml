@@ -1,10 +1,11 @@
-%p= "Dear #{@send_to.try(:full_name)},"
+%p= "Dear #{@send_to.full_name},"
 %p.inline
-  - if @action == "destroy"
+  - case @action
+  - when "destroy"
     = t(:mailer)[:delete_intro]
-  - if @action == "add"
+  - when "add"
     = t(:mailer)[:add_intro]
-  - if @action == "update"
+  - when "update"
     = t(:mailer)[:update]
 %p.inline
-  %a.link{:href => @protocol_link}=t(:mailer)[:sparc_dashboard_period]
+  %a.link{ href: @protocol_link }= t(:mailer)[:sparc_dashboard_period]

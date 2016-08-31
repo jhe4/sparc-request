@@ -17,4 +17,4 @@
       %td.skinny-black-border.center= @modified_user.project_roles.first.role.upcase
       %td.skinny-black-border.center= @modified_user.project_roles.first.display_rights
       - if !@protocol.selected_for_epic.nil?
-        %td.skinny-black-border.center= @modified_user.project_roles.first.epic_access == true ? "Yes" : "No"
+        %td.skinny-black-border.center= @modified_user.project_roles.first.epic_access? ? "Yes" : "No"
