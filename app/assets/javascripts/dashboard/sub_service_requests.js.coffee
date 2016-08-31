@@ -35,11 +35,13 @@ $(document).ready ->
       data: data
 
   $(document).on 'change', '#sub_service_request_status', ->
+    console.log 'here'
+    console.log 'status: ' + $(this).val()
     ssr_id = $(this).data('sub_service_request_id')
     status = $(this).val()
     data = 'sub_service_request' : 'status' : status
     $.ajax
-      type: 'PATCH'
+      type: 'PUT'
       url: "/dashboard/sub_service_requests/#{ssr_id}"
       data: data
 
