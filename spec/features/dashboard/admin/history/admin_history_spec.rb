@@ -30,7 +30,6 @@ RSpec.describe 'admin history', js: true do
     it 'should change the status' do
       visit_admin_history_tab
       bootstrap_select "#sub_service_request_status", 'Draft'
-      # wait_for_javascript_to_finish
       expect(sub_service_request.reload.status).to eq('draft')
     end
   end
