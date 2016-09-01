@@ -27,16 +27,19 @@ RSpec.describe 'admin history', js: true do
 
   describe 'admin changes status' do
 
-    it 'should change the status' do
+    it 'should change the status to Draft' do
       visit_admin_history_tab
       bootstrap_select "#sub_service_request_status", 'Draft'
       expect(sub_service_request.reload.status).to eq('draft')
     end
+
+    it 'should see On Hold status in the history log' do
+      visit_admin_history_tab
+      bootstrap_select "#sub_service_request_status", 'On Hold'
+      sos
+      expect(first('td.changed_to')).to have_content('On Hold')
+    end
   end
-
-    # it 'should be added to the history log' do
-
-
 
   def visit_admin_history_tab
     visit dashboard_sub_service_request_path(sub_service_request.id)
