@@ -36,7 +36,6 @@ RSpec.describe 'admin history', js: true do
     it 'should see On Hold status in the history log' do
       visit_admin_history_tab
       bootstrap_select "#sub_service_request_status", 'On Hold'
-      sos
       expect(first('td.changed_to')).to have_content('On Hold')
     end
   end
