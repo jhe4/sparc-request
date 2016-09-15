@@ -1,4 +1,10 @@
 .panel.panel-default
   .panel-body
     - @items.each do |item|
-      = item.content
+      - @questionnaire_responses.each do |qr|
+        .row
+          .col-md-6
+            %strong
+              = item.content
+          .col-md-6
+            = qr.content
