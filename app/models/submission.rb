@@ -1,7 +1,7 @@
 class Submission < ActiveRecord::Base
   belongs_to :service
   belongs_to :identity
-  has_many :questionnaire_responses
+  has_many :questionnaire_responses, dependent: :destroy
   accepts_nested_attributes_for :questionnaire_responses
 
   def questionnaire_responses_item_ids
@@ -15,5 +15,10 @@ class Submission < ActiveRecord::Base
       items.push(item)
     end
     items
+  end
+
+  def associated_questionnaire
+    first_item_id = questionnaire_responses_item_ids.first
+    Item.find(first_item_id).questionnaire_id
   end
 end

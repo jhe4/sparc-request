@@ -5,6 +5,8 @@
     = form_for [@service, :additional_details, @submission] do |f|
       = f.hidden_field :identity_id, value: current_identity.id
       = f.hidden_field :service_id, value: @service.id
+      - if params[:from_dashboard] == true
+        = f.hidden_field :send_to_dashboard, value: true
       - @questionnaire.items.each do |item|
         = f.fields_for :questionnaire_responses do |qr|
           - if item.required?
@@ -19,7 +21,7 @@
                   - qr.object.errors.full_messages.each do |message|
                     %li
                       = message
-      - unless controller_name == 'previews'
+      - unless controller_name == 'previews' || action_name == 'edit'
         .form-group
           .col-sm-offset-10.col-sm-2
             = f.submit class: 'btn btn-success'

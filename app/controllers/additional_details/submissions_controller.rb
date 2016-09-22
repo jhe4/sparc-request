@@ -18,14 +18,36 @@ class AdditionalDetails::SubmissionsController < ApplicationController
     @submission.questionnaire_responses.build
   end
 
+  def edit
+    @service = Service.find(params[:service_id])
+    @submission = Submission.find(params[:id])
+    @questionnaire = @service.questionnaires.active.first
+  end
+
   def create
     @service = Service.find(params[:service_id])
     @questionnaire = @service.questionnaires.active.first
     @submission = Submission.new(submission_params)
     if @submission.save
-      redirect_to service_additional_details_questionnaires_path(@service)
+      if params[:send_to_dashboard] == true
+        redirect_to dashboard_protocol_path(params[:protocol])
+      else
+        redirect_to service_additional_details_questionnaires_path(@service)
+      end
     else
       render :new
+    end
+  end
+
+  def destroy
+    @submission = Submission.find(params[:id])
+    @protocol = Protocol.find(params[:protocol_id])
+    respond_to do |format|
+      if @submission.destroy
+        format.js
+      else
+        format.js
+      end
     end
   end
 

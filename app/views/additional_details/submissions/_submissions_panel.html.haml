@@ -1,0 +1,36 @@
+.panel.panel-default
+  .panel-heading
+    %h4.panel-title
+      Additional Detail Submissions
+  .panel-body
+    %table.table.table-striped.table-bordered.table-hover
+      %thead
+        %tr
+          %th
+            = 'ID'
+          %th
+            = 'Service Name'
+          %th
+            = 'View Responses'
+          %th
+            = 'Edit Responses'
+          %th
+            = 'Delete Responses'
+      %tbody
+        - protocol.service_requests.each do |service_request|
+          - service_request.additional_detail_services.each do |service|
+            - submissions = Submission.where(service: service, identity: current_identity)
+            - submissions.each do |submission|
+              %tr{ class: "submission", data: { id: "#{submission.id}", service_id: "#{service.id}" } }
+                %td
+                  .text-center
+                    = submission.id
+                %td
+                  .text-center
+                    = service.name
+                %td
+                  = link_to 'View Responses', service_additional_details_submission_path(service, submission), remote: true, class: 'btn btn-primary'
+                %td
+                  = link_to 'Edit Responses', edit_service_additional_details_submission_path(service, submission), remote: true, class: 'btn btn-warning'
+                %td
+                  = link_to 'Delete Responses', service_additional_details_submission_path(service, submission, protocol_id: @protocol.id), remote: true, class: 'btn btn-danger', method: :delete

@@ -29,7 +29,7 @@ SparcRails::Application.routes.draw do
       resource :questionnaire do
         resource :preview, only: [:create]
       end
-      resources :submissions, only: [:show, :new, :create]
+      resources :submissions
       resources :update_questionnaires, only: [:update]
     end
   end
