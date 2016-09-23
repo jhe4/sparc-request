@@ -451,10 +451,6 @@ class Protocol < ActiveRecord::Base
       any?(&:has_ctrc_clinical_services?)
   end
 
-  def find_sub_service_request_with_ctrc(service_request)
-    service_request.sub_service_requests.find(&:ctrc?).try(:ssr_id)
-  end
-
   def any_service_requests_to_display?
     service_requests.where.not(status: 'first_draft').first
   end

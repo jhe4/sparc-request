@@ -571,6 +571,10 @@ class ServiceRequest < ActiveRecord::Base
     return self.line_items.any? { |li| li.should_push_to_epic? }
   end
 
+  def find_sub_service_request_with_ctrc
+    sub_service_requests.find(&:ctrc?).try(:ssr_id)
+  end
+
   def has_ctrc_clinical_services?
     return self.line_items.any? { |li| li.service.is_ctrc_clinical_service? }
   end
