@@ -21,7 +21,9 @@
 class UserMailer < ActionMailer::Base
   default :from => NO_REPLY_FROM 
 
-  def authorized_user_changed(user, protocol)
+  def authorized_user_changed(user, protocol, modified_role, action)
+    @action = action
+    @modified_role = modified_role
     @send_to = user
     @protocol = protocol
 
