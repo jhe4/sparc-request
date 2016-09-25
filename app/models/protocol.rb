@@ -1,4 +1,4 @@
-# Copyright © 2011 MUSC Foundation for Research Development
+# Copyright © 2011-2016 MUSC Foundation for Research Development
 # All rights reserved.
 
 # Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -33,6 +33,7 @@ class Protocol < ActiveRecord::Base
   has_many :project_roles,                dependent: :destroy
   has_many :identities,                   through: :project_roles
   has_many :service_requests
+  has_many :services,                     through: :service_requests
   has_many :sub_service_requests,         through: :service_requests
   has_many :organizations,                through: :sub_service_requests
   has_many :affiliations,                 dependent: :destroy
@@ -264,17 +265,6 @@ class Protocol < ActiveRecord::Base
 
   def activate
     update_attribute(:study_type_question_group_id, StudyTypeQuestionGroup.active.pluck(:id).first)
-  end
-
-  def email_about_change_in_authorized_user(modified_user, action)
-    # Alert authorized users of deleted authorized user
-    # Send emails if SEND_AUTHORIZED_USER_EMAILS is set to true and if there are any non-draft SSRs
-    # For example:  if a SR has SSRs all with a status of 'draft', don't send emails
-    if SEND_AUTHORIZED_USER_EMAILS && sub_service_requests.where.not(status: 'draft').any?
-      emailed_associated_users.each do |project_role|
-        UserMailer.authorized_user_changed(project_role.identity, self, modified_user, action).deliver unless project_role.identity.email.blank?
-      end
-    end
   end
 
   def validate_funding_source
