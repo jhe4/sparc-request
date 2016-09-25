@@ -1,3 +1,23 @@
+# Copyright © 2011-2016 MUSC Foundation for Research Development~
+# All rights reserved.~
+
+# Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:~
+
+# 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.~
+
+# 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following~
+# disclaimer in the documentation and/or other materials provided with the distribution.~
+
+# 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products~
+# derived from this software without specific prior written permission.~
+
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,~
+# BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT~
+# SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL~
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS~
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR~
+# TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.~
+
 require "rails_helper"
 
 RSpec.describe Dashboard::AssociatedUserUpdater do
@@ -35,7 +55,7 @@ RSpec.describe Dashboard::AssociatedUserUpdater do
 
   context "USE_EPIC == true && Protocol selected for epic && QUEUE_EPIC == false" do
     let(:protocol) do
-      create(:study_without_validations,
+      create(:protocol_without_validations,
         primary_pi: primary_pi,
         selected_for_epic: true)
     end
@@ -52,8 +72,6 @@ RSpec.describe Dashboard::AssociatedUserUpdater do
           role: "important",
           project_rights: "to-party",
           epic_access: true)
-
-        create(:sub_service_request, status: 'not_draft', organization: create(:organization), service_request: create(:service_request_without_validations, protocol: protocol))
 
         expect(Notifier).to receive(:notify_for_epic_access_removal) do |p, pr|
           # make sure the correct objects are being passed
@@ -78,8 +96,6 @@ RSpec.describe Dashboard::AssociatedUserUpdater do
           project_rights: "to-party",
           epic_access: false)
 
-        create(:sub_service_request, status: 'not_draft', organization: create(:organization), service_request: create(:service_request_without_validations, protocol: protocol))
-
         expect(Notifier).to receive(:notify_for_epic_user_approval) do |p|
           # make sure the correct objects are being passed
           expect(p.id).to eq(protocol.id)
@@ -102,8 +118,6 @@ RSpec.describe Dashboard::AssociatedUserUpdater do
           epic_access: false)
         project_role.epic_rights.create(right: "left", position: 1)
 
-        create(:sub_service_request, status: 'not_draft', organization: create(:organization), service_request: create(:service_request_without_validations, protocol: protocol))
-
         expect(Notifier).to receive(:notify_for_epic_rights_changes) do |p, pr, epic_rights|
           # make sure the correct objects are being passed
           expect(p.id).to eq(protocol.id)
@@ -121,7 +135,7 @@ RSpec.describe Dashboard::AssociatedUserUpdater do
 
   describe "#protocol_role" do
     it "should return updated ProjectRole, regardless of validity" do
-      protocol = create(:study_without_validations, primary_pi: primary_pi)
+      protocol = create(:protocol_without_validations, primary_pi: primary_pi)
       project_role = ProjectRole.create(identity_id: identity.id,
         protocol_id: protocol.id,
         role: "important",
@@ -134,7 +148,7 @@ RSpec.describe Dashboard::AssociatedUserUpdater do
   end
 
   describe "#successful?" do
-    let(:protocol) { create(:study_without_validations, primary_pi: primary_pi) }
+    let(:protocol) { create(:protocol_without_validations, primary_pi: primary_pi) }
 
     context "update resulted in invalid ProjectRole" do
       it "should return false" do
@@ -155,8 +169,6 @@ RSpec.describe Dashboard::AssociatedUserUpdater do
           protocol_id: protocol.id,
           role: "important",
           project_rights: "to-party")
-
-        create(:sub_service_request, status: 'not_draft', organization: create(:organization), service_request: create(:service_request_without_validations, protocol: protocol))
 
         updater = Dashboard::AssociatedUserUpdater.new(id: project_role.id, project_role: { role: "not-important" })
 
