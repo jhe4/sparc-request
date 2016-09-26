@@ -105,6 +105,7 @@
 .catalog-middle
   margin-left: 5px
   margin-right: 5px
+  height: 100% // for truncating huge lists of Services
 
 .catalog-search-spinner, .catalog-search-clear-icon
   float: right
@@ -182,6 +183,9 @@ div#institution_accordion h3.provider_header
 .program-details-view .description, .provider-details-view .description
   margin-bottom: 10px !important
   padding: 5px !important
+
+.program-services
+  margin-right: 10px // make room for scrollbar
 
 .provider_accordion
   width: 97% !important
@@ -274,6 +278,8 @@ div#institution_accordion h3.provider_header
   background: white url("/assets/welcome_msg_background_gradient.png") left top repeat-x
 
 #welcome_message
+  overflow: scroll
+  max-height: 50% // for truncating large lists of Services
   text-align: center
   h1
     font-size: 19px
@@ -289,4 +295,3 @@ div#institution_accordion h3.provider_header
     font-size: 14px
   .provider-details-view a
     color: #0000EE !important
-

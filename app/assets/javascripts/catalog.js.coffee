@@ -96,7 +96,7 @@ $(document).ready ->
           delay: 0
           when: "mouseout"
           solo: true
-        
+
         style:
           tip: true
           border:
@@ -110,19 +110,19 @@ $(document).ready ->
       $('.catalog-search-spinner').remove()
       $('.catalog-search-clear-icon').remove()
 
-  .data("uiAutocomplete")._renderItem = (ul, item) ->    
+  .data("uiAutocomplete")._renderItem = (ul, item) ->
     label = item.label
     unless item.label is 'No Results'
       label = "#{item.parents}<br>
               <span class='service-name' title='#{item.description}'>
-              #{item.label}<br> 
-              CPT Code: #{item.cpt_code}<br> 
+              #{item.label}<br>
+              CPT Code: #{item.cpt_code}<br>
               Abbreviation: #{item.abbreviation}</span><br>
-              <button id='service-#{item.value}' 
-              sr_id='#{item.sr_id}' 
-              from_portal='#{item.from_portal}' 
-              first_service='#{item.first_service}' 
-              style='font-size: 11px;' 
+              <button id='service-#{item.value}'
+              sr_id='#{item.sr_id}'
+              from_portal='#{item.from_portal}'
+              first_service='#{item.first_service}'
+              style='font-size: 11px;'
               class='add_service'>Add to Cart</button>
               <span class='service-description'>#{item.description}</span>"
 
@@ -146,7 +146,7 @@ $(document).ready ->
     #    $('#sign_in').dialog
     #      modal: true
     #    return false
-  
+
   $('#devise_view').dialog
     modal: true
     width: 700
@@ -160,3 +160,12 @@ $(document).ready ->
 
   $('#cancel_registration').click ->
     $('#signup_form').dialog('close')
+
+  # Nudge #welcome_message every 200ms so that scrollbars always show.
+	setInterval(() ->
+    try
+      g = $('#welcome_message')[0]
+      g.scrollTop += 1
+      g.scrollTop -= 1
+    catch error
+  , 200);
