@@ -39,6 +39,12 @@ class AdditionalDetails::SubmissionsController < ApplicationController
     end
   end
 
+  def update
+    @service = Service.find(params[:service_id])
+    @submission = Submission.find(params[:id])
+    @submission.update_attributes(submission_params)
+  end
+
   def destroy
     @submission = Submission.find(params[:id])
     @protocol = Protocol.find(params[:protocol_id])
