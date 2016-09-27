@@ -11,11 +11,11 @@
           %th
             = 'Service Name'
           %th
-            = 'View Responses'
+            = 'View'
           %th
-            = 'Edit Responses'
+            = 'Edit'
           %th
-            = 'Delete Responses'
+            = 'Delete'
       %tbody
         - protocol.service_requests.each do |service_request|
           - service_request.additional_detail_services.each do |service|
@@ -29,8 +29,15 @@
                   .text-center
                     = service.name
                 %td
-                  = link_to 'View Responses', service_additional_details_submission_path(service, submission), remote: true, class: 'btn btn-primary'
+                  = link_to service_additional_details_submission_path(service, submission),
+                    remote: true, class: 'btn btn-primary' do
+                    %span.glyphicon.glyphicon-search
+
                 %td
-                  = link_to 'Edit Responses', edit_service_additional_details_submission_path(service, submission), remote: true, class: 'btn btn-warning'
+                  = link_to edit_service_additional_details_submission_path(service, submission),
+                    remote: true, class: 'btn btn-warning' do
+                    %span.glyphicon.glyphicon-edit
                 %td
-                  = link_to 'Delete Responses', service_additional_details_submission_path(service, submission, protocol_id: @protocol.id), remote: true, class: 'btn btn-danger', method: :delete
+                  = link_to service_additional_details_submission_path(service, submission, protocol_id: @protocol.id), 
+                    remote: true, class: 'btn btn-danger', method: :delete do
+                    %span.glyphicon.glyphicon-remove
