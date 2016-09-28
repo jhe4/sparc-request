@@ -41,23 +41,25 @@ class Organization < ActiveRecord::Base
   has_many :identities, :through => :catalog_managers
   has_many :services, :dependent => :destroy
   has_many :sub_service_requests, :dependent => :destroy
-  has_many :protocols, through: :sub_service_requests 
+  has_many :protocols, through: :sub_service_requests
   has_many :available_statuses, :dependent => :destroy
   has_many :org_children, class_name: "Organization", foreign_key: :parent_id
 
-  attr_accessible :name
-  attr_accessible :order
-  attr_accessible :css_class
-  attr_accessible :description
-  attr_accessible :parent_id
+
   attr_accessible :abbreviation
   attr_accessible :ack_language
-  attr_accessible :process_ssrs
-  attr_accessible :is_available
-  attr_accessible :subsidy_map_attributes
-  attr_accessible :pricing_setups_attributes
-  attr_accessible :submission_emails_attributes
   attr_accessible :available_statuses_attributes
+  attr_accessible :css_class
+  attr_accessible :description
+  attr_accessible :is_available
+  attr_accessible :lft
+  attr_accessible :name
+  attr_accessible :order
+  attr_accessible :pricing_setups_attributes
+  attr_accessible :process_ssrs
+  attr_accessible :rgt
+  attr_accessible :submission_emails_attributes
+  attr_accessible :subsidy_map_attributes
   attr_accessible :tag_list
 
   accepts_nested_attributes_for :subsidy_map
@@ -65,7 +67,7 @@ class Organization < ActiveRecord::Base
   accepts_nested_attributes_for :submission_emails
   accepts_nested_attributes_for :available_statuses, :allow_destroy => true
 
-  # TODO: In rails 5, the .or operator will be added for ActiveRecord queries. We should try to 
+  # TODO: In rails 5, the .or operator will be added for ActiveRecord queries. We should try to
   #       condense this to a single query at that point
   scope :authorized_for_identity, -> (identity_id) {
     orgs = includes(:super_users, :service_providers).where("super_users.identity_id = ? or service_providers.identity_id = ?", identity_id, identity_id).references(:super_users, :service_providers).uniq(:organizations)

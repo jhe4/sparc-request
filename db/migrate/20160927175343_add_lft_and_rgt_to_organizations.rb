@@ -8,8 +8,6 @@ class AddLftAndRgtToOrganizations < ActiveRecord::Migration
     Organization.where(parent_id: nil).each do |parent|
       left = migrate_children(parent, left)
     end
-
-    remove_column :organizations, :parent_id
   end
 
   def down
