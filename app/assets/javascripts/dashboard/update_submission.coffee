@@ -1,6 +1,8 @@
 $ ->
   $('#submissionModal').on 'shown.bs.modal', ->
     $('.update-submission').on 'click', ->
+      $('.form-group').removeClass('has-error')
+      $('span.help-block').remove()
       id = $(this).data('id')
       values = {}
       $.each $('.edit_submission').serializeArray(), (i, field) ->
