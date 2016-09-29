@@ -200,9 +200,8 @@ class Organization < ActiveRecord::Base
 
   def update_descendants_availability(is_available)
     if is_available == "false"
-      children = Organization.where(id: all_child_organizations << self)
-      children.update_all(is_available: false)
-      Service.where(organization_id: children).update_all(is_available: false)
+      all_children.update_all(is_available: false)
+      all_child_services.update_all(is_available: false)
     end
   end
 
@@ -328,25 +327,14 @@ class Organization < ActiveRecord::Base
   # service providers, as well as the service providers on all parents.  If the process_ssrs flag
   # is true at this organization, also returns the service providers of all children.
   def all_service_providers(include_children=true)
-    orgs = Organization.all
-    all_service_providers = []
-
-    # If process_ssrs is true, we need to also get our children's service providers
-    if self.process_ssrs and include_children
-      self.all_children(orgs).each do |child|
-        all_service_providers << child.service_providers
-      end
-    end
-
-    # Get the service providers on self
-    all_service_providers << self.service_providers
-
-    # Get the service providers on all parents
-    self.parents.each do |parent|
-      all_service_providers << parent.service_providers
-    end
-
-    return all_service_providers.flatten.uniq {|x| x.identity_id}
+    if process_ssrs && include_children
+      ServiceProvider.joins(:organization).
+        where("(organizations.lft <= ? AND organizations.rgt >= ?) OR (organizations.lft > ? AND organizations.rgt < ?)", lft, rgt, lft, rgt)
+    else
+      ServiceProvider.joins(:organization).
+        where("organizations.lft <= ? AND organizations.rgt >= ?", lft, rgt)
+    end.to_a.
+      uniq(&:identity_id)
   end
 
   # Returns all *relevant* super users for an organization.  Returns this organization's
