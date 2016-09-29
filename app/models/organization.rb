@@ -170,10 +170,8 @@ class Organization < ActiveRecord::Base
   end
 
   def all_child_organizations
-    [
-      org_children,
-      org_children.map(&:all_child_organizations)
-    ].flatten
+    Organization.where("lft > ? AND rgt < ?", lft, rgt).
+    order(lft: :asc)
   end
 
   def child_orgs_with_protocols
@@ -192,7 +190,7 @@ class Organization < ActiveRecord::Base
   # TODO: doesn't actually include self, look into this
   # Only usage is passing Organization.all as orgs.
   def all_children
-    Organization.where("(lft > ? AND rgt < ?) OR id = ?", lft, rgt, id).
+    Organization.where("lft >= ? AND rgt <= ?", lft, rgt).
     order(lft: :asc)
   end
   # def all_children (all_children=[], include_self=true, orgs)
