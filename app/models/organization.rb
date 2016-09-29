@@ -341,25 +341,14 @@ class Organization < ActiveRecord::Base
   # super users, as well as the super users on all parents.  If the process_ssrs flag
   # is true at this organization, also returns the super users of all children.
   def all_super_users
-    orgs = Organization.all
-    all_super_users = []
-
-    # If process_ssrs is true, we need to also get our children's super users
-    if self.process_ssrs
-      self.all_children(orgs).each do |child|
-        all_super_users << child.super_users
-      end
-    end
-
-    # Get the super users on self
-    all_super_users << self.super_users
-
-    # Get the super users on all parents
-    self.parents.each do |parent|
-      all_super_users << parent.super_users
-    end
-
-    return all_super_users.flatten.uniq {|x| x.identity_id}
+    if process_ssrs
+      SuperUser.joins(:organization).
+        where("(organizations.lft <= ? AND organizations.rgt >= ?) OR (organizations.lft > ? AND organizations.rgt < ?)", lft, rgt, lft, rgt)
+    else
+      SuperUser.joins(:organization).
+        where("organizations.lft <= ? AND organizations.rgt >= ?", lft, rgt)
+    end.to_a.
+      uniq(&:identity_id)
   end
 
   def get_available_statuses
