@@ -125,10 +125,15 @@ class Organization < ActiveRecord::Base
   end
 
   def service_providers_lookup
-    if !service_providers.empty?
-      return service_providers
+    org_with_providers = Organization.
+      where("lft <= ? AND rgt >= ?", lft, rgt).
+      joins(:service_providers).
+      order(lft: :desc).
+      first
+    if org_with_providers
+      org_with_providers.service_providers
     else
-      return self.parents.select {|x| !x.service_providers.empty?}.first.try(:service_providers) || []
+      []
     end
   end
 
