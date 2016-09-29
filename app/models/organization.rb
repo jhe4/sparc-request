@@ -171,18 +171,11 @@ class Organization < ActiveRecord::Base
 
   def all_child_organizations
     Organization.where("lft > ? AND rgt < ?", lft, rgt).
-    order(lft: :asc)
+      order(lft: :asc)
   end
 
   def child_orgs_with_protocols
-    organizations = all_child_organizations
-    organizations_with_protocols = []
-    organizations.flatten.uniq.each do |organization|
-      if organization.protocols.any?
-        organizations_with_protocols << organization
-      end
-    end
-    organizations_with_protocols.flatten.uniq
+    all_child_organizations.joins(:protocols).distinct
   end
 
   # Returns an array of all children (and children of children) of this organization (deep search).
