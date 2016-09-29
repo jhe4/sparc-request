@@ -117,10 +117,10 @@ class Organization < ActiveRecord::Base
   # flag is set to true.  Will return self if self has the flag set true.  Will return nil if no
   # organization in the hierarchy is found that has the flag set to true.
   def process_ssrs_parent
-    if self.process_ssrs
-      return self
+    if process_ssrs
+      self
     else
-      return self.parents.select {|x| x.process_ssrs}.first
+      parents.find_by(process_ssrs: true)
     end
   end
 
