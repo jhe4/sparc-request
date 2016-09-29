@@ -184,18 +184,19 @@ class Organization < ActiveRecord::Base
   # Only usage is passing Organization.all as orgs.
   def all_children
     Organization.where("lft >= ? AND rgt <= ?", lft, rgt).
-    order(lft: :asc)
+      order(lft: :asc)
   end
-  # def all_children (all_children=[], include_self=true, orgs)
-  #   self.children(orgs).each do |child|
-  #     all_children << child
-  #     child.all_children(all_children, orgs)
-  #   end
-  #
-  #   all_children << self if include_self
-  #
-  #   all_children.uniq
-  # end
+
+  def all_children_old (all_children=[], include_self=true, orgs)
+    self.children(orgs).each do |child|
+      all_children << child
+      child.all_children_old(all_children, orgs)
+    end
+
+    all_children << self if include_self
+
+    all_children.uniq
+  end
 
   def update_descendants_availability(is_available)
     if is_available == "false"
@@ -207,18 +208,16 @@ class Organization < ActiveRecord::Base
 
   # Returns an array of all services that are offered by this organization as well of all of its
   # deep children.
-  def all_child_services include_self=true
-    orgs = Organization.all
-    all_services = []
-    children = self.all_children [], include_self, orgs
-    children.each do |child|
-      if child.services
-        services = Service.where(:organization_id => child.id).includes(:pricing_maps)
-        all_services = all_services | services.sort_by{|x| x.name}
-      end
+  def all_child_services(include_self=true)
+    if include_self
+      Service.joins(:organization).
+        where("organizations.lft >= ? AND organizations.rgt <= ?", lft, rgt).
+        order(:name)
+    else
+      Service.joins(:organization).
+        where("organizations.lft > ? AND organizations.rgt < ?", lft, rgt).
+        order(:name)
     end
-
-    all_services
   end
 
   ###############################################################################
