@@ -102,14 +102,15 @@ class Organization < ActiveRecord::Base
 
   # Returns an array of organizations, the current organization's parents, in order of climbing
   # the tree backwards (thus if called on a core it will return => [program, provider, institution]).
-  def parents id_only=false
-    my_parents = []
-    if parent
-      my_parents << (id_only ? parent.id : parent)
-      my_parents.concat(parent.parents id_only)
+  def parents(id_only=false)
+    if id_only
+      Organization.where("lft < ? AND rgt > ?", lft, rgt).
+        order(lft: :desc).
+        pluck(:id)
+    else
+      Organization.where("lft < ? AND rgt > ?", lft, rgt).
+        order(lft: :desc)
     end
-
-    my_parents
   end
 
   # Returns the first organization amongst the current organization's parents where the process_ssrs
