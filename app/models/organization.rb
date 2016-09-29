@@ -130,10 +130,8 @@ class Organization < ActiveRecord::Base
   end
 
   def service_providers_lookup
-    org_with_providers = Organization.
-      where("lft <= ? AND rgt >= ?", lft, rgt).
+    org_with_providers = parents_and_self.
       joins(:service_providers).
-      order(lft: :desc).
       first
     if org_with_providers
       org_with_providers.service_providers
