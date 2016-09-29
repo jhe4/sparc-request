@@ -103,14 +103,9 @@ class Organization < ActiveRecord::Base
   # Returns an array of organizations, the current organization's parents, in order of climbing
   # the tree backwards (thus if called on a core it will return => [program, provider, institution]).
   def parents(id_only=false)
-    if id_only
-      Organization.where("lft < ? AND rgt > ?", lft, rgt).
-        order(lft: :desc).
-        pluck(:id)
-    else
-      Organization.where("lft < ? AND rgt > ?", lft, rgt).
-        order(lft: :desc)
-    end
+    orgs = Organization.where("lft < ? AND rgt > ?", lft, rgt).
+      order(lft: :desc)
+    id_only ? orgs.pluck(:id) : orgs
   end
 
   def parents_and_self
