@@ -113,6 +113,11 @@ class Organization < ActiveRecord::Base
     end
   end
 
+  def parents_and_self
+    Organization.where("lft <= ? AND rgt >= ?", lft, rgt).
+      order(lft: :desc)
+  end
+
   # Returns the first organization amongst the current organization's parents where the process_ssrs
   # flag is set to true.  Will return self if self has the flag set true.  Will return nil if no
   # organization in the hierarchy is found that has the flag set to true.
@@ -138,10 +143,13 @@ class Organization < ActiveRecord::Base
   end
 
   def submission_emails_lookup
-    if !submission_emails.empty?
-      return submission_emails
+    org_with_emails = parents_and_self.
+      joins(:submission_emails).
+      first
+    if org_with_emails
+      org_with_emails.submission_emails
     else
-      return self.parents.select {|x| !x.submission_emails.empty?}.first.try(:submission_emails) || []
+      []
     end
   end
 
