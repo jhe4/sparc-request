@@ -162,7 +162,7 @@ class Identity < ActiveRecord::Base
     orgs =[]
     orgs << ssr.organization << ssr.organization.parents
     orgs.flatten!
-    
+
     orgs.each do |org|
       provider_ids = org.service_providers_lookup.map{|x| x.identity_id}
       if provider_ids.include?(self.id)
@@ -297,11 +297,10 @@ class Identity < ActiveRecord::Base
   # any child (deep) of any of those organizations.
   # Returns an array of organizations.
   def catalog_manager_organizations
-    organizations = Organization.all
     orgs = []
 
     self.catalog_managers.map(&:organization).each do |org|
-      orgs << org.all_children(organizations)
+      orgs << org.all_children
     end
 
     orgs.flatten.uniq
@@ -309,11 +308,10 @@ class Identity < ActiveRecord::Base
 
   # Returns an array of organizations where the user has clinical provider rights.
   def clinical_provider_organizations
-    organizations = Organization.all
     orgs = []
 
     self.clinical_providers.map(&:organization).each do |org|
-      orgs << org.all_children(organizations)
+      orgs << org.all_children
     end
 
     self.admin_organizations({su_only: true}).each do |org|
@@ -331,9 +329,9 @@ class Identity < ActiveRecord::Base
     orgs = Organization.all
     organizations = []
     arr = organizations_for_users(orgs, su_only)
-    
+
     arr.each do |org|
-      organizations << org.all_children(orgs)
+      organizations << org.all_children
     end
 
     ##In case orgs is empty, return an empty array, instead of crashing.

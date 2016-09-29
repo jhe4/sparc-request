@@ -117,24 +117,24 @@ RSpec.describe 'organization' do
         expect(core2.process_ssrs_parent).to eq(program2)
       end
     end
-    
+
     describe 'all children' do
 
       it 'should return itself if it is a core' do
-        expect(core.all_children(Organization.all)).to eq([core])
+        expect(core.reload.all_children).to eq([core])
       end
 
       it 'should return the core if it is a program' do
-        expect(program.all_children(Organization.all)).to include(core)
-        expect(program.all_children(Organization.all)).not_to include(core2)
+        expect(program.reload.all_children).to include(core)
+        expect(program.reload.all_children).not_to include(core2)
       end
 
       it 'should return multiple programs and cores if it is a provider' do
-        expect(provider.all_children(Organization.all)).to include(core, core2, program, program2)
+        expect(provider.reload.all_children).to include(core, core2, program, program2)
       end
 
       it 'should return everything if it is an institution' do
-        expect(institution.all_children(Organization.all)).to include(core, core2, program, program2, provider)
+        expect(institution.reload.all_children).to include(core, core2, program, program2, provider)
       end
     end
 
@@ -145,6 +145,10 @@ RSpec.describe 'organization' do
       let!(:core_organization)           { create(:core, parent_id: program_organization.id) }
       let!(:program_service)             { create(:service, organization_id: program_organization.id) }
       let!(:core_service)                { create(:service, organization_id: core_organization.id) }
+      before(:each) do
+        provider_organization.reload
+        program_organization.reload
+      end
 
       it "should return true if a service has a service provider in the tree" do
         service_provider = create(:service_provider, organization_id: provider_organization.id)
@@ -156,7 +160,7 @@ RSpec.describe 'organization' do
       end
 
       it "should return false if there is a service provider, but it's only on the current organization" do
-        service_provider = create(:service_provider, organization_id: program_organization.id)
+        create(:service_provider, organization_id: program_organization.id)
         expect(program_organization.service_providers_for_child_services?).to eq(false)
       end
     end
@@ -190,15 +194,15 @@ RSpec.describe 'organization' do
         prog_core = create(:core, parent_id: prog.id)
         serv1 = create(:service, organization_id: prog.id)
         serv2 = create(:service, organization_id: prog_core.id)
-        expect(prog.all_child_services).to include(serv1, serv2)
+        expect(prog.reload.all_child_services).to include(serv1, serv2)
       end
 
       it 'should return the services under a provider' do
-        expect(provider.all_child_services).to include(service, service2, service3)
+        expect(provider.reload.all_child_services).to include(service, service2, service3)
       end
 
       it 'should return the services under an institution' do
-        expect(institution.all_child_services).to include(service, service2, service3)
+        expect(institution.reload.all_child_services).to include(service, service2, service3)
       end
     end
   end
@@ -210,6 +214,8 @@ RSpec.describe 'organization' do
       program   = create(:program, parent: provider, is_available: true)
       core      = create(:core, parent: program, is_available: true)
       service   = create(:service, organization: core, is_available: true)
+      provider.reload
+      program.reload
 
       provider.update_descendants_availability("false")
 

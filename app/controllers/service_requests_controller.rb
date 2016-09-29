@@ -122,7 +122,7 @@ class ServiceRequestsController < ApplicationController
           self_or_parent_id = ssr.find_editable_id(organization.id)
           if !EDITABLE_STATUSES[self_or_parent_id].include?(ssr.status)
             @locked_org_ids << self_or_parent_id
-            @locked_org_ids << organization.all_children(Organization.all).map(&:id)
+            @locked_org_ids << organization.all_children.map(&:id)
           end
         end
       end
@@ -533,10 +533,10 @@ class ServiceRequestsController < ApplicationController
     # Passes the correct SSR to display in the attachment and email.
     sub_service_requests.each do |sub_service_request|
       sub_service_request.organization.submission_emails_lookup.each do |submission_email|
-        
+
         @service_list_false = service_request.service_list(false, nil, sub_service_request)
         @service_list_true = service_request.service_list(true, nil, sub_service_request)
-        
+
         @line_items = sub_service_request.line_items
         xls = render_to_string action: 'show', formats: [:xlsx]
         display_ssr = sub_service_request

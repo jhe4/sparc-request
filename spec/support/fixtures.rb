@@ -169,6 +169,13 @@ def build_service_request
   let!(:core_16)             { create(:core, parent_id: program.id, abbreviation: "Lab and Biorepository") }
   let!(:core_15)             { create(:core, parent_id: program.id, abbreviation: "Imaging") }
   let!(:core_62)             { create(:core, parent_id: program.id, abbreviation: "PWF Services") }
+
+  before(:each) do
+    institution.reload
+    provider.reload
+    program.reload
+  end
+
   let!(:sub_service_request) { create(:sub_service_request, ssr_id: "0001", service_request_id: service_request.id, organization_id: program.id,status: "draft", org_tree_display: "SCTR1/Office of Biomedical Informatics")}
 
 
@@ -325,4 +332,7 @@ def build_service_request_with_services
                                exclude_from_indirect_cost: 0, unit_minimum: 1) }
   let!(:pricing_map2) { create(:pricing_map, service_id: service2.id, unit_type: 'Per patient/visit', unit_factor: 1, full_rate: 636,
                                exclude_from_indirect_cost: 0, unit_minimum: 1) }
+  institution.reload
+  provider.reload
+  program.reload
 end

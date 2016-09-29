@@ -25,6 +25,8 @@ class Organization < ActiveRecord::Base
   audited
   acts_as_taggable
 
+  before_save :compute_lft_and_rgt
+
   belongs_to :parent, :class_name => 'Organization'
   has_many :submission_emails, :dependent => :destroy
   has_many :pricing_setups, :dependent => :destroy
@@ -55,6 +57,7 @@ class Organization < ActiveRecord::Base
   attr_accessible :lft
   attr_accessible :name
   attr_accessible :order
+  attr_accessible :parent_id
   attr_accessible :pricing_setups_attributes
   attr_accessible :process_ssrs
   attr_accessible :rgt
@@ -135,7 +138,7 @@ class Organization < ActiveRecord::Base
   end
 
   # If an organization or one of it's parents is defined as lockable in the application.yml, return true
-  def has_editable_statuses
+  def has_editable_statuses?
     parents_and_self.where(id: EDITABLE_STATUSES.keys).any?
   end
 
@@ -337,6 +340,22 @@ class Organization < ActiveRecord::Base
     else
       orgs = Organization.where(parent_id: org_ids)
       orgs | authorized_child_organizations(orgs.pluck(:id))
+    end
+  end
+
+  def compute_lft_and_rgt
+    if parent_id_changed? || !id
+      new_parent = Organization.find_by(id: parent_id)
+      if new_parent
+        self.lft = new_parent.rgt
+        self.rgt = self.lft + 1
+        Organization.where('rgt >= ?', self.lft).update_all('rgt = rgt + 2')
+        Organization.where('lft > ?', self.lft).update_all('lft = lft + 2')
+      else
+        last_rgt = Organization.maximum(:rgt) || 0
+        self.lft = last_rgt + 1
+        self.rgt = self.lft + 1
+      end
     end
   end
 end
