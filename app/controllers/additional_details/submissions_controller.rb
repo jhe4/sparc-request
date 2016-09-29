@@ -43,6 +43,13 @@ class AdditionalDetails::SubmissionsController < ApplicationController
     @service = Service.find(params[:service_id])
     @submission = Submission.find(params[:id])
     @submission.update_attributes(submission_params)
+    respond_to do |format|
+      if @submission.save
+        format.js
+      else
+        format.js
+      end
+    end
   end
 
   def destroy

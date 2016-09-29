@@ -10,5 +10,3 @@ $ ->
         url: "/services/#{serviceId}/additional_details/submissions/#{id}"
         type: 'PATCH'
         data: values
-        success: ->
-          $('#submissionModal').modal('close')
