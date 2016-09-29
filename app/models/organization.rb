@@ -117,51 +117,26 @@ class Organization < ActiveRecord::Base
   # flag is set to true.  Will return self if self has the flag set true.  Will return nil if no
   # organization in the hierarchy is found that has the flag set to true.
   def process_ssrs_parent
-    if process_ssrs
-      self
-    else
-      parents.find_by(process_ssrs: true)
-    end
+    process_ssrs? ? self : parents.find_by(process_ssrs: true)
   end
 
   def service_providers_lookup
     org_with_providers = parents_and_self.
       joins(:service_providers).
       first
-    if org_with_providers
-      org_with_providers.service_providers
-    else
-      []
-    end
+    org_with_providers ? org_with_providers.service_providers : []
   end
 
   def submission_emails_lookup
     org_with_emails = parents_and_self.
       joins(:submission_emails).
       first
-    if org_with_emails
-      org_with_emails.submission_emails
-    else
-      []
-    end
+    org_with_emails ? org_with_emails.submission_emails : []
   end
 
   # If an organization or one of it's parents is defined as lockable in the application.yml, return true
   def has_editable_statuses
     parents_and_self.where(id: EDITABLE_STATUSES.keys).any?
-  end
-
-  # Returns the immediate children of this organization (shallow search)
-  def children orgs
-    children = []
-
-    orgs.each do |org|
-      if org.parent_id == self.id
-        children << org
-      end
-    end
-
-    children
   end
 
   def all_child_organizations
@@ -182,17 +157,6 @@ class Organization < ActiveRecord::Base
       order(lft: :asc)
   end
 
-  def all_children_old (all_children=[], include_self=true, orgs)
-    self.children(orgs).each do |child|
-      all_children << child
-      child.all_children_old(all_children, orgs)
-    end
-
-    all_children << self if include_self
-
-    all_children.uniq
-  end
-
   def update_descendants_availability(is_available)
     if is_available == "false"
       all_children.update_all(is_available: false)
@@ -205,13 +169,11 @@ class Organization < ActiveRecord::Base
   def all_child_services(include_self=true)
     if include_self
       Service.joins(:organization).
-        where("organizations.lft >= ? AND organizations.rgt <= ?", lft, rgt).
-        order(:name)
+        where("organizations.lft >= ? AND organizations.rgt <= ?", lft, rgt)
     else
       Service.joins(:organization).
-        where("organizations.lft > ? AND organizations.rgt < ?", lft, rgt).
-        order(:name)
-    end
+        where("organizations.lft > ? AND organizations.rgt < ?", lft, rgt)
+    end.order(:name)
   end
 
   ###############################################################################
@@ -288,19 +250,6 @@ class Organization < ActiveRecord::Base
   ###############################################################################
   ############################ RELATIONSHIP METHODS #############################
   ###############################################################################
-
-  # Returns this organization's service providers if they exist.  If they do not, finds the first
-  # parent organization which has service providers and returns the service providers of that parent.
-  def service_providers_lookup
-    if !service_providers.empty?
-      return self.service_providers
-    elsif !self.parents.empty?
-      parent = self.parents.select {|x| !x.service_providers.empty?}.first
-      return parent.nil? ? [] : parent.service_providers
-    else
-      return []
-    end
-  end
 
   # Looks down through all child services. It looks back up through each service's parent organizations
   # and returns false if any of them do not have a service provider. Self is excluded.
