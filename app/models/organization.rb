@@ -190,16 +190,21 @@ class Organization < ActiveRecord::Base
   # Returns an array of all children (and children of children) of this organization (deep search).
   # Optionally includes self
   # TODO: doesn't actually include self, look into this
-  def all_children (all_children=[], include_self=true, orgs)
-    self.children(orgs).each do |child|
-      all_children << child
-      child.all_children(all_children, orgs)
-    end
-
-    all_children << self if include_self
-
-    all_children.uniq
+  # Only usage is passing Organization.all as orgs.
+  def all_children
+    Organization.where("(lft > ? AND rgt < ?) OR id = ?", lft, rgt, id).
+    order(lft: :asc)
   end
+  # def all_children (all_children=[], include_self=true, orgs)
+  #   self.children(orgs).each do |child|
+  #     all_children << child
+  #     child.all_children(all_children, orgs)
+  #   end
+  #
+  #   all_children << self if include_self
+  #
+  #   all_children.uniq
+  # end
 
   def update_descendants_availability(is_available)
     if is_available == "false"
