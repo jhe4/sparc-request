@@ -21,6 +21,10 @@ class AdditionalDetails::SubmissionsController < ApplicationController
     @questionnaire = @service.questionnaires.active.first
     @submission = Submission.new
     @submission.questionnaire_responses.build
+    respond_to do |format|
+      format.html
+      format.js
+    end
   end
 
   def edit
@@ -33,14 +37,16 @@ class AdditionalDetails::SubmissionsController < ApplicationController
     @service = Service.find(params[:service_id])
     @questionnaire = @service.questionnaires.active.first
     @submission = Submission.new(submission_params)
-    if @submission.save
-      if params[:send_to_dashboard] == true
-        redirect_to dashboard_protocol_path(params[:protocol])
+    @protocol = Protocol.find(params[:protocol_id])
+    @service_request = ServiceRequest.find(params[:sr_id])
+    respond_to do |format|
+      if @submission.save
+        format.js
+        format.html
       else
-        redirect_to service_additional_details_questionnaires_path(@service)
+        format.js
+        format.html { render :new }
       end
-    else
-      render :new
     end
   end
 
@@ -60,12 +66,9 @@ class AdditionalDetails::SubmissionsController < ApplicationController
   def destroy
     @submission = Submission.find(params[:id])
     @protocol = Protocol.find(params[:protocol_id])
+    @service_request = ServiceRequest.find(params[:sr_id])
     respond_to do |format|
-      if @submission.destroy
-        format.js
-      else
-        format.js
-      end
+      format.js
     end
   end
 
