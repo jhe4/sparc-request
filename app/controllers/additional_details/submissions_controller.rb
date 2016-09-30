@@ -68,7 +68,11 @@ class AdditionalDetails::SubmissionsController < ApplicationController
     @protocol = Protocol.find(params[:protocol_id])
     @service_request = ServiceRequest.find(params[:sr_id])
     respond_to do |format|
-      format.js
+      if @submission.destroy
+        format.js
+      else
+        format.js
+      end
     end
   end
 
