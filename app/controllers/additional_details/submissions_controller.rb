@@ -2,6 +2,11 @@ class AdditionalDetails::SubmissionsController < ApplicationController
   layout 'additional_details'
   include AdditionalDetails::StatesHelper
 
+  def index
+    @service = Service.find(params[:service_id])
+    @submissions = @service.submissions
+  end
+
   def show
     @submission = Submission.find(params[:id])
     @questionnaire_responses = @submission.questionnaire_responses

@@ -27,7 +27,9 @@
                     = submission.id
                 %td
                   .text-center
-                    = service.name
+                    = link_to "#{service.name}",
+                      service_additional_details_submissions_path(service),
+                      target: '_blank'
                 %td.text-center
                   = link_to service_additional_details_submission_path(service, submission),
                     remote: true, class: 'btn btn-primary' do
