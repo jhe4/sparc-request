@@ -13,7 +13,7 @@ $ ->
       confirmButtonText: 'Delete'
       closeOnConfirm: true
     }, ->
-      if $(this).attr('sr-id') && $(this).attr('protocol-id')
+      if srId != undefined && protocolId != undefined
         $.ajax
           type: 'DELETE'
           url: "/services/#{serviceId}/additional_details/submissions/#{id}?protocol_id=#{protocolId}&sr_id=#{srId}"
