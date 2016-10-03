@@ -64,9 +64,15 @@ class AdditionalDetails::SubmissionsController < ApplicationController
   end
 
   def destroy
+    @service = Service.find(params[:service_id])
+    @submissions = @service.submissions
     @submission = Submission.find(params[:id])
-    @protocol = Protocol.find(params[:protocol_id])
-    @service_request = ServiceRequest.find(params[:sr_id])
+    if params[:protocol_id]
+      @protocol = Protocol.find(params[:protocol_id])
+    end
+    if params[:sr_id]
+      @service_request = ServiceRequest.find(params[:sr_id])
+    end
     respond_to do |format|
       if @submission.destroy
         format.js

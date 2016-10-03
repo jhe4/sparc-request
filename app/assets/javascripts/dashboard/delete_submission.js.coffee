@@ -13,10 +13,17 @@ $ ->
       confirmButtonText: 'Delete'
       closeOnConfirm: true
     }, ->
-      $.ajax
-        type: 'DELETE'
-        url: "/services/#{serviceId}/additional_details/submissions/#{id}?protocol_id=#{protocolId}&sr_id=#{srId}"
-        success: ->
-          swal('Deleted', 'Submission Deleted', "success")
+      if $(this).attr('sr-id') && $(this).attr('protocol-id')
+        $.ajax
+          type: 'DELETE'
+          url: "/services/#{serviceId}/additional_details/submissions/#{id}?protocol_id=#{protocolId}&sr_id=#{srId}"
+          success: ->
+            swal('Deleted', 'Submission Deleted', "success")
+      else
+        $.ajax
+          type: 'DELETE'
+          url: "/services/#{serviceId}/additional_details/submissions/#{id}"
+          success: ->
+            swal('Deleted', 'Submission Deleted', "success")
 
 

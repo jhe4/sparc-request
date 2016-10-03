@@ -5,7 +5,7 @@
         = questionnaire.name
     %td
       .text-center
-        = link_to "javascript:void(0);", class: 'btn btn-primary' do
+        = link_to service_additional_details_submissions_path(@service), class: 'btn btn-primary' do
           Responses
           %span.badge
             = questionnaire.submissions.count
