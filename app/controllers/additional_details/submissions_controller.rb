@@ -10,7 +10,8 @@ class AdditionalDetails::SubmissionsController < ApplicationController
   def show
     @submission = Submission.find(params[:id])
     @questionnaire_responses = @submission.questionnaire_responses
-    @items = @submission.submission_items
+    @questionnaire = Questionnaire.find(@submission.questionnaire_id)
+    @items = @questionnaire.items
     respond_to do |format|
       format.js
     end
