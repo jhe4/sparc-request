@@ -332,7 +332,9 @@ def build_service_request_with_services
                                exclude_from_indirect_cost: 0, unit_minimum: 1) }
   let!(:pricing_map2) { create(:pricing_map, service_id: service2.id, unit_type: 'Per patient/visit', unit_factor: 1, full_rate: 636,
                                exclude_from_indirect_cost: 0, unit_minimum: 1) }
-  institution.reload
-  provider.reload
-  program.reload
+  before(:each) do
+    institution.reload
+    provider.reload
+    program.reload
+  end
 end

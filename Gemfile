@@ -51,6 +51,7 @@ gem 'premailer-rails'
 gem 'protected_attributes'
 gem 'rails', '4.2.4'
 gem 'rails-html-sanitizer'
+gem 'rb-readline' # pry will break without some sort of readline lib now
 gem 'redcarpet'
 gem 'remotipart'
 gem 'rest-client'

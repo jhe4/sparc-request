@@ -345,6 +345,7 @@ class Organization < ActiveRecord::Base
   end
 
   def compute_lft_and_rgt
+    binding.pry if name == 'Medical University of South Carolina'
     if parent_id_changed? || !id
       new_parent = Organization.find_by(id: parent_id)
       if new_parent

@@ -364,6 +364,7 @@ GEM
       rake (>= 0.8.7)
       thor (>= 0.18.1, < 2.0)
     rake (10.4.2)
+    rb-readline (0.5.3)
     redcarpet (3.3.3)
     remotipart (1.2.1)
     responders (2.1.0)
@@ -571,6 +572,7 @@ DEPENDENCIES
   rails (= 4.2.4)
   rails-erd
   rails-html-sanitizer
+  rb-readline
   redcarpet
   remotipart
   rest-client
@@ -601,3 +603,6 @@ DEPENDENCIES
   will_paginate
   will_paginate-bootstrap
   x-editable-rails
+
+BUNDLED WITH
+   1.11.2
