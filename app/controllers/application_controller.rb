@@ -43,7 +43,7 @@ class ApplicationController < ActionController::Base
 
   def prepare_catalog
     if session['sub_service_request_id'] and @sub_service_request
-      @institutions = @sub_service_request.organization.parents.select{|x| x.type == 'Institution'}
+      @institutions = @sub_service_request.organization.parents.where(type: "Institution")
     else
       @institutions = Institution.order('`order`')
     end

@@ -63,7 +63,7 @@ module CatalogManager::CatalogHelper
   end
 
   def disabled_parent organization
-    if (orgs = organization.parents.insert(0, organization).select{|org| !org.is_available}).any?
+    if (orgs = organization.parents_and_self.where(is_available: false)).any?
       I18n.t('organization_form.disabled_at', disabled_parent: orgs.last.name)
     end
   end

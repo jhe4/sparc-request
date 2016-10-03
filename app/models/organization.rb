@@ -128,14 +128,14 @@ class Organization < ActiveRecord::Base
     org_with_providers = parents_and_self.
       joins(:service_providers).
       first
-    org_with_providers ? org_with_providers.service_providers : []
+    org_with_providers ? org_with_providers.service_providers : Organization.none
   end
 
   def submission_emails_lookup
     org_with_emails = parents_and_self.
       joins(:submission_emails).
       first
-    org_with_emails ? org_with_emails.submission_emails : []
+    org_with_emails ? org_with_emails.submission_emails : Organization.none
   end
 
   # If an organization or one of it's parents is defined as lockable in the application.yml, return true
