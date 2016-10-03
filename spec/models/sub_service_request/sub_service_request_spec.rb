@@ -61,12 +61,12 @@ RSpec.describe 'SubServiceRequest' do
           core3 = create(:core, parent_id: program.id)
 
           ppv = create(:service, organization_id: core.id, name: "Per Patient Service") # PPV Service
-          ppv2 = create(:service, :disabled, organization_id: core3.id) # Disabled PPV Service
+          create(:service, :disabled, organization_id: core3.id) # Disabled PPV Service
           otf = create(:service, organization_id: core2.id, name: "OTF Service", one_time_fee: true) # OTF Service
           otf.pricing_maps.build(attributes_for(:pricing_map))
 
           # ssr = create(:sub_service_request, organization_id: core.id)
-
+          sub_service_request.reload
           expect(sub_service_request.candidate_services).to include(ppv, otf)
         end
 
